@@ -1,0 +1,27 @@
+{
+  "name": "phpfeniks/bot",
+  "description": "The Feniks Discord bot",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Audun Larsen",
+      "email": "larsen@xqus.com"
+    }
+  ],
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Feniks\\Bot\\FeniksServiceProvider"
+      ]
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Feniks\\Bot\\": "src"
+    }
+  },
+  "require-dev": {
+    "orchestra/testbench": "^7.0"
+  }
+}
