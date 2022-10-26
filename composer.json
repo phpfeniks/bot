@@ -9,6 +9,10 @@
       "email": "larsen@xqus.com"
     }
   ],
+  "require": {
+    "team-reflex/discord-php": "^7.3",
+    "xqus/laravel-model-settings": "dev-master"
+  },
   "extra": {
     "laravel": {
       "providers": [
@@ -24,4 +28,5 @@
   "require-dev": {
     "orchestra/testbench": "^7.0"
   }
+
 }
