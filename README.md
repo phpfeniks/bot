@@ -4,14 +4,18 @@
 
 <p align="center"><img src="https://img.shields.io/packagist/dm/phpfeniks/bot" alt="shields"><img src="https://img.shields.io/github/license/phpfeniks/bot" alt="shields"><img src="https://img.shields.io/github/v/release/phpfeniks/bot" alt="shields"></p>
 
-  
-  
+
+
 ## 🧐 Features
 
 Here're some of the project's best features:
 
-  
-  
+* Earn XP by contributing
+* Advanced XP formula
+* Spam prevention
+* Create seasonal scoreboards
+
+
 ## 💻 Built with
 
 Technologies used in the project:
