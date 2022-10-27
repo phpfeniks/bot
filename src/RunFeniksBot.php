@@ -92,9 +92,6 @@ class RunFeniksBot extends Command
 
             });
 
-            $command = new SlashCommand($discord, ['name' => 'ping', 'description' => 'pong']);
-            $discord->application->commands->save($command);
-
             $command = new SlashCommand($discord, ['name' => 'scores', 'description' => 'Show current scores']);
             $discord->application->commands->save($command);
 
