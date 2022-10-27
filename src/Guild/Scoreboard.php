@@ -61,34 +61,22 @@ class Scoreboard
   {
     $this->create();
 
-    $embed = [
-      'color' => '#FEE75C',
-      'author' => [
-        'name' => $this->guild->name,
-        'icon_url' => $this->guild->avatar
-      ],
-      "title" => ":clipboard: Scoreboard",
-      "description" => "Below is the total scores for *{$this->guild->name}*",
-      'fields' => [
-        0 => [
-          'name' => 'Top 3 :speech_balloon: ',
-          'value' => $this->top3(),
-          'inline' => true,
-        ],
-        1 => [
-          'name' => 'Honorable mentions :speech_balloon: ',
-          'value' => $this->honerable() ? $this->honerable() : 'None',
-          'inline' => true,
-        ]
-      ],
-      'footer' => array(
-        'icon_url'  => 'https://cdn.discordapp.com/avatars/1022932382237605978/5f28c64903f5a1e6919cae962c5ebe80.webp?size=1024',
-        'text'  => 'Powered by Feniks',
-      ),
-    ];
+    $embed = new \Feniks\Bot\Embed($this->guild);
 
-    dump($embed);
+    $embed
+      ->title(':clipboard: Scoreboard')
+      ->description("Below is the total scores for *{$this->guild->name}*")
+      ->field(
+        'Top 3 :speech_balloon:',
+        $this->top3(),
+        true
+      )
+      ->field(
+        'Honorable mentions :speech_balloon:',
+        $this->honerable() ? $this->honerable() : 'None',
+        true
+      );
 
-    return new Embed($this->discord, $embed);
+    return new Embed($this->discord, $embed->toArray());
   }
 }
