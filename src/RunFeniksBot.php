@@ -2,6 +2,7 @@
 
 namespace Feniks\Bot;
 
+use Feniks\Bot\Season\Overview;
 use Feniks\Bot\Season\Announcer;
 use Feniks\Bot\Models\Channel;
 use Feniks\Bot\Models\Role;
@@ -112,38 +113,8 @@ class RunFeniksBot extends Command
 
 
             $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
-
-                $guild = GuildModel::where('discord_id', $interaction->guild_id)->first();
-                $seasons = $guild->seasons()->orderBy('end_date', 'desc')->get();
-
-                $embed = [
-                    'color' => '#FEE75C',
-                    'author' => [
-                        'name' => $guild->name,
-                        'icon_url' => $guild->avatar
-                    ],
-                    "title" => ":clipboard: All seasons",
-                    "description" => "Below is all past and future seasons for this server",
-                    'fields' =>array(
-                    ),
-                    'footer' => array(
-                        'icon_url'  => 'https://cdn.discordapp.com/avatars/1022932382237605978/5f28c64903f5a1e6919cae962c5ebe80.webp?size=1024',
-                        'text'  => 'Powered by Feniks',
-                    ),
-                ];
-
-                foreach($seasons as $season) {
-                    $embed['fields'][] = [
-                        'name' => "$season->name / {$season->start_date} to {$season->end_date}",
-                        'value' => "{$season->description}\n -------------------------",
-                        'inline' => false,
-                    ];
-
-                }
-
-                $embed = new Embed($discord, $embed);
-
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed));
+              $overview = new Overview($interaction, $discord);
+              $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($overview->all()));
             });
 
         });
