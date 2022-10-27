@@ -2,6 +2,9 @@
 
 namespace Feniks\Bot;
 
+use Feniks\Bot\Guild\Channels;
+use Feniks\Bot\Guild\Guilds;
+use Feniks\Bot\Guild\Roles;
 use Feniks\Bot\Season\Overview;
 use Feniks\Bot\Season\Announcer;
 use Feniks\Bot\Models\Channel;
@@ -51,46 +54,25 @@ class RunFeniksBot extends Command
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
-            $this->info('Joined guild:'. $guild['name']);
-            $guildModel = GuildModel::updateOrCreate([
-                'discord_id' => $guild['id'],
-            ], [
-                'name' => $guild['name'],
-                'avatar' => $guild['icon'],
-            ]);
+          $this->info('Joined guild:'. $guild['name']);
+          $guilds = new Guilds();
+          $guildId = $guilds->sync($guild);
 
-            foreach($guild->channels as $channel) {
-                if($channel->type == 0) {
-                    Channel::updateOrCreate([
-                        'discord_id' => $channel->id,
-                    ], [
-                        'guild_id' => $guildModel->id,
-                        'name' => $channel->name,
-                        'type' => $channel->type,
-                    ]);
-                }
-            }
+          $channels = new Channels();
+          $channels->sync($guild, $guildId);
 
-            foreach($guild->roles as $role) {
-                Role::updateOrCreate([
-                    'discord_id' => $role->id,
-                ], [
-                    'guild_id' => $guildModel->id,
-                    'name' => $role->name,
-                ]);
-            }
-
+          $roles = new Roles();
+          $roles->sync($guild, $guildId);
         });
 
         $discord->on('ready', function (Discord $discord) {
             $this->info('Feniks ready to fly!');
 
-            $discord->getLoop()->addPeriodicTimer(6, function($timer) use($discord) {
+            $discord->getLoop()->addPeriodicTimer(3600, function($timer) use($discord) {
                 $this->info('Hourly tick');
 
                 $announcer = new Announcer($discord);
                 $announcer->starting();
-
             });
 
             $command = new SlashCommand($discord, ['name' => 'scores', 'description' => 'Show current scores']);
@@ -103,8 +85,6 @@ class RunFeniksBot extends Command
                Handler::seen($message);
                Handler::message($message, $discord);
             });
-
-
 
             $discord->listenCommand('scores', function (Interaction $interaction) use($discord) {
               $scoreboard = new Scoreboard($interaction, $discord);
