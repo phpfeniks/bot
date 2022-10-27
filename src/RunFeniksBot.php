@@ -207,66 +207,9 @@ class RunFeniksBot extends Command
 
                 $embed = $scoreboard->getEmbed();
 
-                $interaction->respondWithMessage(MessageBuilder::new()->setContent('Pong!')->addEmbed($embed));
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed));
             });
 
-            $discord->listenCommand('ping', function (Interaction $interaction) use($discord) {
-                $embed = new Embed($discord, [
-                    'image' => [
-                        'url' => 'https://media.discordapp.net/avatars/285852400214867969/d6184c48ac7ded282c33503543a812ea.jpg',
-                    ],
-                    'color' => '#FEE75C',
-                    'author' => [
-                        'name' => 'test',
-                        'icon_url' => 'https://media.discordapp.net/avatars/285852400214867969/d6184c48ac7ded282c33503543a812ea.jpg'
-                    ],
-                    "title" => "Embed title",
-                    "description" => "Embed description",
-                    'fields' =>array(
-                        '0' => array(
-                            'name' => 'Fields',
-                            'value' => 'They can have different fields with small headlines.',
-                            'inline' => true
-                        ),
-                        '1' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => true
-                        ),
-                        '2' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => true
-                        ),
-                        '3' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => false
-                        ),
-                        '4' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => false
-                        ),
-                        '5' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => false
-                        ),
-                        '6' => array(
-                            'name' => 'Fields',
-                            'value' => 'You can put [masked links](http://google.com) inside of rich embeds.',
-                            'inline' => false
-                        ),
-                    ),
-                    'footer' => array(
-                        'icon_url'  => 'https://media.discordapp.net/avatars/285852400214867969/d6184c48ac7ded282c33503543a812ea.jpg',
-                        'text'  => '© Suslik',
-                    ),
-                ]);
-
-                 $interaction->respondWithMessage(MessageBuilder::new()->setContent('Pong!')->addEmbed($embed));
-            });
 
             $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
 
