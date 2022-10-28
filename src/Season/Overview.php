@@ -34,7 +34,7 @@ class Overview
     foreach($seasons as $season) {
       $embed->field(
         "$season->name / {$season->start_date} to {$season->end_date}",
-        "{$season->description}\n -------------------------"
+        "{$season->description}\n `/season {$season->id}` \n-------------------------"
       );
     }
     return new Embed($this->discord, $embed->toArray());
