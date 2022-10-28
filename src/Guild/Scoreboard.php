@@ -29,8 +29,6 @@ class Scoreboard
         $interaction->respondWithMessage(MessageBuilder::new()->setContent(':red_square: **No such season**!* Check `/seasons` for available seasons on this server.'));
       }
     }
-
-    dump($this->season);
   }
 
   private function getUsers()
@@ -61,7 +59,6 @@ class Scoreboard
 
       $position++;
     }
-    dump($this->scoreboard);
   }
 
   private function top3()
