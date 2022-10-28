@@ -3,13 +3,13 @@
 namespace Feniks\Bot;
 
 use Discord\Parts\Channel\Channel;
+use Discord\Parts\Guild\Role;
 use Discord\Parts\Interactions\Command\Option;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
 use Feniks\Bot\Season\Overview;
 use Feniks\Bot\Season\Announcer;
-use Feniks\Bot\Models\Role;
 use Feniks\Bot\Models\Season;
 use Feniks\Bot\Models\User;
 use Discord\Builders\MessageBuilder;
@@ -19,6 +19,7 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Guild;
 use Feniks\Bot\Models\Channel as ChannelModel;
 use Feniks\Bot\Models\Guild as GuildModel;
+use Feniks\Bot\Models\Role as RoleModel;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Interactions\Command\Command as SlashCommand;
 use Discord\WebSockets\Event;
@@ -124,6 +125,39 @@ class RunFeniksBot extends Command
 
             $discord->on(Event::CHANNEL_DELETE, function (Channel $channel, Discord $discord) {
                 ChannelModel::where('discord_id', $channel->id)->delete();
+            });
+
+            $discord->on(Event::GUILD_ROLE_CREATE, function (Role $role, Discord $discord) {
+                $guild = GuildModel::where('discord_id', $role->guild_id)->first();
+                RoleModel::updateOrCreate([
+                    'discord_id' => $role->id,
+                ], [
+                    'guild_id' => $guild->id,
+                    'name' => $role->name,
+                ]);
+            });
+
+            $discord->on(Event::GUILD_ROLE_UPDATE, function (Role $role, Discord $discord, ?Role $oldRole) {
+                $guild = GuildModel::where('discord_id', $role->guild_id)->first();
+                RoleModel::updateOrCreate([
+                    'discord_id' => $role->id,
+                ], [
+                    'name' => $role->name,
+                ]);
+            });
+
+            $discord->on(Event::GUILD_ROLE_DELETE, function (object $role, Discord $discord) {
+                if ($role instanceof Role) {
+                    RoleModel::where('discord_id', $role->id)->delete();
+                }
+                else {
+                    dump($role);
+                    RoleModel::where('discord_id', $role->role_id)->delete();
+                    // {
+                    //     "guild_id": "" // role guild ID
+                    //     "role_id": "", // role ID,
+                    // }
+                }
             });
 
 
