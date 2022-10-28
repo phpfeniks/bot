@@ -2,6 +2,7 @@
 
 namespace Feniks\Bot;
 
+use Discord\Parts\Interactions\Command\Option;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
@@ -75,7 +76,25 @@ class RunFeniksBot extends Command
                 $announcer->starting();
             });
 
-            $command = new SlashCommand($discord, ['name' => 'scores', 'description' => 'Show current scores']);
+          $command = new SlashCommand($discord, [
+            'name' => 'scores',
+            'description' => 'Show total scores for this server'
+          ]);
+          $discord->application->commands->save($command);
+
+            $command = new SlashCommand($discord, [
+              'name' => 'season',
+              'description' => 'Show scores for selected season',
+              'options' => [
+                new Option($discord, [
+                  'name' => 'season',
+                  'description' => 'Season to show scores for (see /seasons)',
+                  'required' => true,
+                  'type' => Option::STRING,
+                  'autocomplete' => false
+                ])
+              ]
+            ]);
             $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, ['name' => 'seasons', 'description' => 'List all the seasons for this server']);
@@ -91,6 +110,12 @@ class RunFeniksBot extends Command
               $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
             });
 
+          $discord->listenCommand('season', function (Interaction $interaction) use($discord) {
+            foreach ($interaction['data']['options'] as $option) {
+              $scoreboard = new Scoreboard($interaction, $discord, $option['value']);
+            }
+            $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
+          });
 
             $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
               $overview = new Overview($interaction, $discord);

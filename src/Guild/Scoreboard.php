@@ -3,25 +3,43 @@
 
 namespace Feniks\Bot\Guild;
 
+use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Feniks\Bot\Models\Guild as GuildModel;
 use Discord\Parts\Interactions\Interaction;
+use Feniks\Bot\Models\Season;
 
 class Scoreboard
 {
   private $guild;
   private $discord;
+  private $season;
   private $scoreboard = [];
 
   public function __construct(Interaction $interaction, Discord $discord, $season = null)
   {
     $this->guild = GuildModel::where('discord_id', $interaction->guild_id)->first();
     $this->discord = $discord;
+    $this->season = $season;
+
+    if($season !== null ) {
+      $this->season = Season::where('id', $season)->first();
+      if(! $this->season) {
+        $interaction->respondWithMessage(MessageBuilder::new()->setContent(':red_square: **No such season**!* Check `/seasons` for available seasons on this server.'));
+      }
+    }
+
+    dump($this->season);
   }
 
   private function getUsers()
   {
+
+    if($this->season !== null) {
+      return $this->season->users()
+        ->orderByPivot('points', 'desc')->limit(13)->get();
+    }
     return $this->guild->users()
       ->orderByPivot('points', 'desc')->limit(13)->get();
   }
@@ -63,9 +81,18 @@ class Scoreboard
 
     $embed = new \Feniks\Bot\Embed($this->guild);
 
+    if($this->season === null) {
+      $embed
+        ->title(':clipboard: Scoreboard')
+        ->description("Below is the total scores for *{$this->guild->name}*");
+    } else {
+      $embed
+        ->title(':clipboard: Season scoreboard')
+        ->description("Below is the scores for *{$this->season->name}*");
+    }
+
+
     $embed
-      ->title(':clipboard: Scoreboard')
-      ->description("Below is the total scores for *{$this->guild->name}*")
       ->field(
         'Top 3 :speech_balloon:',
         $this->top3(),
