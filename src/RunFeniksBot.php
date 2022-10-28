@@ -55,15 +55,15 @@ class RunFeniksBot extends Command
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
-          $this->info('Joined guild:'. $guild['name']);
-          $guilds = new Guilds();
-          $guildId = $guilds->sync($guild);
+            $this->info('Joined guild:'. $guild['name']);
+            $guilds = new Guilds();
+            $guildId = $guilds->sync($guild);
 
-          $channels = new Channels();
-          $channels->sync($guild, $guildId);
+            $channels = new Channels();
+            $channels->sync($guild, $guildId);
 
-          $roles = new Roles();
-          $roles->sync($guild, $guildId);
+            $roles = new Roles();
+            $roles->sync($guild, $guildId);
         });
 
         $discord->on('ready', function (Discord $discord) {
@@ -76,50 +76,52 @@ class RunFeniksBot extends Command
                 $announcer->starting();
             });
 
-          $command = new SlashCommand($discord, [
-            'name' => 'scores',
-            'description' => 'Show total scores for this server'
-          ]);
-          $discord->application->commands->save($command);
+            $command = new SlashCommand($discord, [
+                'name' => 'scores',
+                'description' => 'Show total scores for this server'
+            ]);
+            $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, [
-              'name' => 'season',
-              'description' => 'Show scores for selected season',
-              'options' => [
-                new Option($discord, [
-                  'name' => 'season',
-                  'description' => 'Season to show scores for (see /seasons)',
-                  'required' => true,
-                  'type' => Option::STRING,
-                  'autocomplete' => false
-                ])
-              ]
+                'name' => 'season',
+                'description' => 'Show scores for selected season',
+                'options' => [
+                    new Option($discord, [
+                        'name' => 'season',
+                        'description' => 'Season to show scores for (see /seasons)',
+                        'required' => true,
+                        'type' => Option::STRING,
+                        'autocomplete' => false
+                    ])
+                ]
             ]);
             $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, ['name' => 'seasons', 'description' => 'List all the seasons for this server']);
             $discord->application->commands->save($command);
 
+
+
             $discord->on(Event::MESSAGE_CREATE, function (Message $message, Discord $discord) {
-               Handler::seen($message);
-               Handler::message($message, $discord);
+                Handler::seen($message);
+                Handler::message($message, $discord);
             });
 
             $discord->listenCommand('scores', function (Interaction $interaction) use($discord) {
-              $scoreboard = new Scoreboard($interaction, $discord);
-              $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
+                $scoreboard = new Scoreboard($interaction, $discord);
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
             });
 
-          $discord->listenCommand('season', function (Interaction $interaction) use($discord) {
-            foreach ($interaction['data']['options'] as $option) {
-              $scoreboard = new Scoreboard($interaction, $discord, $option['value']);
-            }
-            $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
-          });
+            $discord->listenCommand('season', function (Interaction $interaction) use($discord) {
+                foreach ($interaction['data']['options'] as $option) {
+                    $scoreboard = new Scoreboard($interaction, $discord, $option['value']);
+                }
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
+            });
 
             $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
-              $overview = new Overview($interaction, $discord);
-              $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($overview->all()));
+                $overview = new Overview($interaction, $discord);
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($overview->all()));
             });
 
         });
