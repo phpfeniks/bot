@@ -2,13 +2,13 @@
 
 namespace Feniks\Bot;
 
+use Discord\Parts\Channel\Channel;
 use Discord\Parts\Interactions\Command\Option;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
 use Feniks\Bot\Season\Overview;
 use Feniks\Bot\Season\Announcer;
-use Feniks\Bot\Models\Channel;
 use Feniks\Bot\Models\Role;
 use Feniks\Bot\Models\Season;
 use Feniks\Bot\Models\User;
@@ -17,6 +17,7 @@ use Discord\Discord;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Guild;
+use Feniks\Bot\Models\Channel as ChannelModel;
 use Feniks\Bot\Models\Guild as GuildModel;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Interactions\Command\Command as SlashCommand;
@@ -100,6 +101,30 @@ class RunFeniksBot extends Command
             $command = new SlashCommand($discord, ['name' => 'seasons', 'description' => 'List all the seasons for this server']);
             $discord->application->commands->save($command);
 
+
+            $discord->on(Event::CHANNEL_CREATE, function (Channel $channel, Discord $discord) {
+                $guild = GuildModel::where('discord_id', $channel->guild_id)->first();
+                ChannelModel::updateOrCreate([
+                    'discord_id' => $channel->id,
+                ], [
+                    'guild_id' => $guild->id,
+                    'name' => $channel->name,
+                    'type' => $channel->type,
+                ]);
+            });
+
+            $discord->on(Event::CHANNEL_UPDATE, function (Channel $channel, Discord $discord, ?Channel $oldChannel) {
+                $guild = GuildModel::where('discord_id', $channel->guild_id)->first();
+                ChannelModel::updateOrCreate([
+                    'discord_id' => $channel->id,
+                ], [
+                    'name' => $channel->name,
+                ]);
+            });
+
+            $discord->on(Event::CHANNEL_DELETE, function (Channel $channel, Discord $discord) {
+                ChannelModel::where('discord_id', $channel->id)->delete();
+            });
 
 
             $discord->on(Event::MESSAGE_CREATE, function (Message $message, Discord $discord) {
