@@ -182,6 +182,16 @@ class Handler
             $guild->pivot->save();
         }
 
+        $messageLog = new \Feniks\Bot\Models\Message();
+        $messageLog->discord_id = $message->id;
+        $messageLog->guild_id = $guild->id;
+        $messageLog->channel_id = $channel->id;
+        $messageLog->user_id = $user->id;
+        $messageLog->length = strlen($message->content);
+        $messageLog->points = $points;
+        $messageLog->save();
+
+
         echo "{$message->member->nick} awarded {$points} points", PHP_EOL;
     }
 }
