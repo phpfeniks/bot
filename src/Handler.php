@@ -37,6 +37,13 @@ class Handler
         $channel = Channel::where('discord_id', $message->channel->id)->first();
         $guild = Guild::where('discord_id', $message->guild_id)->first();
 
+        $messageLog = new \Feniks\Bot\Models\Message();
+        $messageLog->discord_id = $message->id;
+        $messageLog->guild_id = $guild->id;
+        $messageLog->channel_id = $channel->id;
+        $messageLog->user_id = $user->id;
+        $messageLog->length = strlen($message->content);
+
         $pointsFactor = $guild->settings()->get('points.global.factor', 10);
 
         $overrides = $guild->settings()->get('points.overrides', []);
@@ -182,12 +189,7 @@ class Handler
             $guild->pivot->save();
         }
 
-        $messageLog = new \Feniks\Bot\Models\Message();
-        $messageLog->discord_id = $message->id;
-        $messageLog->guild_id = $guild->id;
-        $messageLog->channel_id = $channel->id;
-        $messageLog->user_id = $user->id;
-        $messageLog->length = strlen($message->content);
+
         $messageLog->points = $points;
         $messageLog->save();
 

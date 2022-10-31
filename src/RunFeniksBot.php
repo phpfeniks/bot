@@ -251,7 +251,7 @@ class RunFeniksBot extends Command
                         $userguild->pivot->save();
 
                         $interaction->message->react(':white_check_mark:')->done(function () {
-                            
+
                         });
 
                         $interaction->respondWithMessage(MessageBuilder::new()
