@@ -27,6 +27,7 @@ use Discord\Parts\Interactions\Command\Command as SlashCommand;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Feniks\Bot\Guild\Scoreboard;
+use Feniks\Bot\User\Level;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
@@ -81,8 +82,20 @@ class RunFeniksBot extends Command
             });
 
             $command = new SlashCommand($discord, [
+                'name' => 'help',
+                'description' => 'Get started using Feniks'
+            ]);
+            $discord->application->commands->save($command);
+
+            $command = new SlashCommand($discord, [
                 'name' => 'scores',
                 'description' => 'Show total scores for this server'
+            ]);
+            $discord->application->commands->save($command);
+
+            $command = new SlashCommand($discord, [
+                'name' => 'level',
+                'description' => 'Show your level'
             ]);
             $discord->application->commands->save($command);
 
@@ -174,6 +187,15 @@ class RunFeniksBot extends Command
                 $auditMessage = \Feniks\Bot\Models\Message::where('discord_id', $message->id)->first();
 
                 if($auditChannel && $auditMessage) {
+                    if ($message instanceof Message) {
+                        // Message is present in cache
+                    }
+                    // If the message is not present in the cache:
+                    else {
+                        $user = User::where('id', $auditMessage->user_id)->first();
+                        $message->user_id = $user->discord_id;
+
+                    }
                     $lengthDifference = strlen($message->content) - $auditMessage->length;
 
                     $embed = new \Feniks\Bot\Embed($guild);
@@ -287,6 +309,24 @@ class RunFeniksBot extends Command
             $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
                 $overview = new Overview($interaction, $discord);
                 $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($overview->all()));
+            });
+
+            $discord->listenCommand('level', function (Interaction $interaction) use($discord) {
+                $level = new Level($interaction, $discord);
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($level->showLevel()));
+            });
+
+            $discord->listenCommand('help', function (Interaction $interaction) use($discord) {
+                $embed = new \Feniks\Bot\Embed($interaction->guild);
+                $embed
+                    ->title(':information_source: Get started with Feniks')
+                    ->description(":robot: Bip boop! I'm Feniks, nice to meet you. To see all my commands `type /` and press my avatar to the left.")
+                    ->field(
+                        ':ticket: Server owner?',
+                        "Log in to the dashboard at [feniksbot.com](https://feniksbot.com) to get started."
+                    );
+
+                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord, $embed->toArray())));
             });
 
         });
