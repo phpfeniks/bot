@@ -7,6 +7,7 @@ use Discord\Builders\Components\Button;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Guild\Role;
 use Discord\Parts\Interactions\Command\Option;
+use Discord\Parts\User\Activity;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
@@ -73,6 +74,12 @@ class RunFeniksBot extends Command
 
         $discord->on('ready', function (Discord $discord) {
             $this->info('Feniks ready to fly!');
+            $activity = new Activity($discord, [
+                'name' => '/help',
+                'type' => Activity::TYPE_LISTENING,
+            ]);
+
+            $discord->updatePresence($activity);
 
             $discord->getLoop()->addPeriodicTimer(3600, function($timer) use($discord) {
                 $this->info('Hourly tick');
