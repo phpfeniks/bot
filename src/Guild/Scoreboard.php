@@ -24,7 +24,7 @@ class Scoreboard
     $this->season = $season;
 
     if($season !== null ) {
-      $this->season = Season::where('id', $season)->first();
+      $this->season = $this->guild->seasons()->where('id', $season)->first();
       if(! $this->season) {
         $interaction->respondWithMessage(MessageBuilder::new()->setContent(':red_square: **No such season**!* Check `/seasons` for available seasons on this server.'));
       }
