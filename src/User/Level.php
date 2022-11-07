@@ -16,12 +16,14 @@ class Level
     private $guild;
     private $discord;
     private $user;
+    private $interaction;
 
     public function __construct(Interaction $interaction, Discord $discord)
     {
         $this->guild =  GuildModel::where('discord_id', $interaction->guild_id)->first();
         $this->user = User::where('discord_id', $interaction->user->id)->first();
         $this->discord = $discord;
+        $this->interaction = $interaction;
     }
 
     public function level($points)
@@ -63,11 +65,15 @@ class Level
 
         $embed = new \Feniks\Bot\Embed($this->guild);
         $embed
-            ->title(":sparkles: Your level")
+            ->title($this->interaction->member->nick ? ':sparkles: '.$this->interaction->member->nick.' ('.$this->interaction->user->displayname.')' : ':sparkles: '.$this->interaction->user->displayname )
             ->description("Below is a summary of your level and points")
             ->field(':chart_with_upwards_trend: Total XP', $userGuild->pivot->points, true)
             ->field(':trophy: Current level', $this->level($userGuild->pivot->points), true)
         ;
+
+
+        $embed->thumbnail($this->interaction->user->avatar);
+
 
         if($requirment['next'] !== false) {
             $xpForLevel = $requirment['next'] - $requirment['current'];
