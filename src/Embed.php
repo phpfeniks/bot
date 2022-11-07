@@ -22,9 +22,10 @@ class Embed
 
       ],
       'footer' => array(
-        'icon_url'  => 'https://cdn.discordapp.com/avatars/1022932382237605978/5f28c64903f5a1e6919cae962c5ebe80.webp?size=1024',
-        'text'  => 'Powered by Feniks',
+        'icon_url'  => 'https://cdn.discordapp.com/avatars/1024290414443905044/4ffaa5507e58881550547c0a012cf59f.webp?size=1024',
+        'text'  => 'Feniks',
       ),
+      'timestamp' => now('UTC'),
     ];
 
     return $this;
@@ -43,6 +44,20 @@ class Embed
 
     return $this;
   }
+
+  public function thumbnail($thumbnail)
+  {
+    $this->embed['thumbnail']['url'] = $thumbnail;
+
+    return $this;
+  }
+
+    public function image($image)
+    {
+        $this->embed['image']['url'] = $image;
+
+        return $this;
+    }
 
   public function field($name, $value, $inline = false)
   {
