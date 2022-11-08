@@ -76,7 +76,7 @@ class Level
 
         $embed = new \Feniks\Bot\Embed($this->guild);
         $embed
-            ->title($this->interaction->member->nick ? ':sparkles: '.$this->interaction->member->nick.' ('.$this->interaction->user->displayname.')' : ':sparkles: '.$this->interaction->user->displayname )
+            ->title($userGuild->pivot->username ? ':sparkles: '.$userGuild->pivot->username.' ('.$this->user->name.')' : ':sparkles: '.$this->user->name )
             ->description("Below is a summary of your level and points")
             ->field(':chart_with_upwards_trend: Total XP', $userGuild->pivot->points, true)
             ->field(':trophy: Current level', $this->level($userGuild->pivot->points), true)
