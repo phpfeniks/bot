@@ -104,7 +104,16 @@ class RunFeniksBot extends Command
 
             $command = new SlashCommand($discord, [
                 'name' => 'level',
-                'description' => 'Show your level'
+                'description' => 'Show the user information card for you or any other user.',
+                'options' => [
+                    new Option($discord, [
+                        'name' => 'user',
+                        'description' => 'User to display',
+                        'required' => false,
+                        'type' => Option::USER,
+                        'autocomplete' => false
+                    ])
+                ]
             ]);
             $discord->application->commands->save($command);
 
@@ -329,7 +338,13 @@ class RunFeniksBot extends Command
 
             $discord->listenCommand('level', function (Interaction $interaction) use($discord) {
                 $level = new Level($interaction, $discord);
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($level->showLevel()));
+                $showLevel = $level->showLevel();
+                if(! $showLevel) {
+                    $interaction->respondWithMessage(MessageBuilder::new()->setContent(':information_source:  I have no information about this user.'));
+                } else {
+                    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($showLevel));
+                }
+
             });
 
             $discord->listenCommand('help', function (Interaction $interaction) use($discord) {

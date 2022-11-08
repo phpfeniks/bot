@@ -21,7 +21,12 @@ class Level
     public function __construct(Interaction $interaction, Discord $discord)
     {
         $this->guild =  GuildModel::where('discord_id', $interaction->guild_id)->first();
+
         $this->user = User::where('discord_id', $interaction->user->id)->first();
+        if($interaction->data->options['user'] !== null) {
+            $this->user = User::where('discord_id', $interaction->data->options['user']->value)->first();
+        }
+
         $this->discord = $discord;
         $this->interaction = $interaction;
     }
@@ -55,8 +60,15 @@ class Level
 
     public function showLevel()
     {
-        $guild = GuildModel::where('discord_id', $this->guild->id)->first();
+        dump($this->user);
+        if(! $this->user) {
+            return false;
+        }
+
         $userGuild = $this->user->guilds()->where('guilds.id', $this->guild->id)->first();
+        if(! $userGuild) {
+            return false;
+        }
 
         $requirment['current'] = $this->levelRequirement($this->level($userGuild->pivot->points));
         $requirment['next'] = $this->levelRequirement($this->level($userGuild->pivot->points)+1);
