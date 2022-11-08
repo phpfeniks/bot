@@ -45,4 +45,13 @@ class Guild extends Model
         return $this->belongsToMany(User::class, 'user_administer');
     }
 
+    public function isConfigured()
+    {
+        if($this->settings()->get('general.audit-channel', null) === null) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

@@ -101,6 +101,13 @@ class Scoreboard
         true
       );
 
+      if(! $this->guild->isConfigured()) {
+          $embed->field(
+              ":robot: Missing configuration",
+              ":x: **Basic configuration for Feniks is missing.** You should tell your server administrator to [configure Feniks](https://docs.feniksbot.com/#/admin/quickstart)."
+          );
+      }
+
     return new Embed($this->discord, $embed->toArray());
   }
 }
