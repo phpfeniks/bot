@@ -4,6 +4,8 @@ namespace Feniks\Bot;
 
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
+use Discord\Builders\Components\TextInput;
+use Discord\Helpers\Collection;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Guild\Role;
 use Discord\Parts\Interactions\Command\Option;
@@ -120,6 +122,13 @@ class RunFeniksBot extends Command
                 ]
             ]);
             $discord->application->commands->save($command);
+
+            /*$command = new SlashCommand($discord, [
+                'name' => 'profile',
+                'description' => 'Edit the bio and colors for your profile card',
+            ]);
+            $discord->application->commands->save($command);*/
+
 
             $command = new SlashCommand($discord, ['name' => 'seasons', 'description' => 'List all the seasons for this server']);
             $discord->application->commands->save($command);
@@ -336,6 +345,21 @@ class RunFeniksBot extends Command
                 $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord, $embed->toArray())));
             });
 
+       /*     $discord->listenCommand('profile', function (Interaction $interaction) use($discord) {
+                $ar = ActionRow::new();
+                $ti = TextInput::new('Color (hex)', TextInput::STYLE_SHORT, 'color');
+                $ar->addComponent($ti);
+                $ar2 = ActionRow::new();
+                $ti2 = TextInput::new('About ', TextInput::STYLE_PARAGRAPH, 'about');
+                $ar2->addComponent($ti2);
+                $customId = '123';
+                $interaction->showModal('Edit profile card', $customId, [$ar, $ar2], function (Interaction $interaction, Collection $components) {
+                    var_dump($components);
+                    // $components['first']->value
+                    // $components['second']->value
+                    $interaction->acknowledge();
+                });
+            });*/
         });
 
         $discord->run();
