@@ -60,7 +60,6 @@ class Level
 
     public function showLevel()
     {
-        dump($this->user);
         if(! $this->user) {
             return false;
         }
