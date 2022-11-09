@@ -177,7 +177,9 @@ class RunFeniksBot extends Command
                 ChannelModel::updateOrCreate([
                     'discord_id' => $channel->id,
                 ], [
+                    'guild_id' => $guild->id,
                     'name' => $channel->name,
+                    'type' => $channel->type,
                 ]);
             });
 
@@ -200,6 +202,7 @@ class RunFeniksBot extends Command
                 RoleModel::updateOrCreate([
                     'discord_id' => $role->id,
                 ], [
+                    'guild_id' => $guild->id,
                     'name' => $role->name,
                 ]);
             });
