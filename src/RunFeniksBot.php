@@ -90,6 +90,18 @@ class RunFeniksBot extends Command
                 $announcer->starting();
             });
 
+            $discord->getLoop()->addPeriodicTimer(7200, function($timer) use($discord) {
+                $this->info('Updating active guilds:');
+
+                foreach($discord->guilds as $guild) {
+                    $this->info('-Active in guild: '.$guild->id);
+                    $update = GuildModel::where('discord_id', $guild->id)->first();
+                    $update->active_at = now('UTC');
+                    $update->save();
+                }
+
+            });
+
             $command = new SlashCommand($discord, [
                 'name' => 'help',
                 'description' => 'Get started using Feniks'
