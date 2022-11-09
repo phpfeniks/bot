@@ -264,8 +264,7 @@ class RunFeniksBot extends Command
                         );
 
                     $reply = MessageBuilder::new()
-                        ->addEmbed(new Embed($discord, $embed->toArray()))
-                        ->setTts(true);
+                        ->addEmbed(new Embed($discord, $embed->toArray()));
 
                     $auditChannel->sendMessage($reply)->done(function (Message $reply)  {
 
@@ -331,8 +330,7 @@ class RunFeniksBot extends Command
 
                     $reply = MessageBuilder::new()
                         ->addEmbed(new Embed($discord, $embed->toArray()))
-                        ->addComponent($row)
-                        ->setTts(true);
+                        ->addComponent($row);
 
                     $auditChannel->sendMessage($reply)->done(function (Message $reply)  {
 

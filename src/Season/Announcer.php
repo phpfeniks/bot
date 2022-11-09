@@ -44,8 +44,7 @@ class Announcer
           );
 
         $reply = MessageBuilder::new()
-          ->addEmbed(new Embed($this->discord, $embed->toArray()))
-          ->setTts(true);
+          ->addEmbed(new Embed($this->discord, $embed->toArray()));
 
         $channel->sendMessage($reply)->done(function (Message $reply) use($season) {
           $season->announced = true;

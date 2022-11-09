@@ -156,8 +156,7 @@ class Handler
                     ];
                     $embed = new Embed($discord, $embed);
                     $reply = MessageBuilder::new()
-                        ->addEmbed($embed)
-                        ->setTts(true);
+                        ->addEmbed($embed);
 
                     $channel->sendMessage($reply)->done(function (Message $reply) {
                         // ...
