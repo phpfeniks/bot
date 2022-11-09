@@ -191,8 +191,5 @@ class Handler
 
         $messageLog->points = $points;
         $messageLog->save();
-
-
-        echo "{$message->member->nick} awarded {$points} points", PHP_EOL;
     }
 }
