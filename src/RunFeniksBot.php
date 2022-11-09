@@ -33,6 +33,8 @@ use Feniks\Bot\Guild\Scoreboard;
 use Feniks\Bot\User\Level;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class RunFeniksBot extends Command
 {
@@ -57,9 +59,13 @@ class RunFeniksBot extends Command
      */
     public function handle()
     {
+        $logger = new Logger('DiscordPHP');
+        $logger->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
+
         $discord = new Discord([
             'token' => config('services.discord.bot_token'),
             'intents' => Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS | Intents::GUILD_PRESENCES,
+            'logger' => $logger,
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
