@@ -83,7 +83,7 @@ class Level
         ;
 
 
-        $embed->thumbnail($this->interaction->user->avatar);
+        $embed->thumbnail($this->user->avatar);
 
 
         if($requirment['next'] !== false) {
