@@ -64,7 +64,7 @@ class RunFeniksBot extends Command
 
         $discord = new Discord([
             'token' => config('services.discord.bot_token'),
-            'intents' => Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS | Intents::GUILD_PRESENCES,
+            'intents' => Intents::getDefaultIntents() | Intents::GUILDS,
             'logger' => $logger,
         ]);
 
