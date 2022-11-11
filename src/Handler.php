@@ -198,12 +198,15 @@ class Handler
                                 // I don't care
                             }
                         }
-
                     }
                     if (isset($ranks[$newRank]['role']) && $ranks[$newRank]['role'] != 0) {
-                        $message->member->addRole($ranks[$newRank]['role'])->done(function () {
+                        try {
+                            $message->member->addRole($ranks[$newRank]['role'])->done(function () {
 
-                        });
+                            });
+                        } catch (\RuntimeException $e) {
+                            // I don't care
+                        }
                     }
                 }
             }
