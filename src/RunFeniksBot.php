@@ -360,8 +360,6 @@ class RunFeniksBot extends Command
                 $showLevel = $level->showLevel();
                 if(! $showLevel) {
                     $interaction->respondWithMessage(MessageBuilder::new()->setContent(':information_source:  I have no information about this user.'));
-                } else {
-                    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($showLevel));
                 }
 
             });

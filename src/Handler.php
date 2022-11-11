@@ -20,8 +20,8 @@ class Handler
         $user = User::updateOrCreate([
             'discord_id' => $message->author->id,
         ], [
-            'name' => $message->author->displayname,
-            'avatar' => $message->author->avatar,
+            'name' => '',
+            'avatar' => '',
         ]);
         $guild = Guild::where('discord_id', $message->guild_id)->first();
         $guild->users()->syncWithoutDetaching([$user->id => ['username' => $message->member?->nick]]);

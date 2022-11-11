@@ -4,9 +4,11 @@
 namespace Feniks\Bot\User;
 
 
+use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\User\Member;
 use Feniks\Bot\Models\Guild as GuildModel;
 use Feniks\Bot\Models\User;
 use Illuminate\Support\Carbon;
@@ -69,58 +71,64 @@ class Level
             return false;
         }
 
+
         $requirment['current'] = $this->levelRequirement($this->level($userGuild->pivot->points));
         $requirment['next'] = $this->levelRequirement($this->level($userGuild->pivot->points)+1);
         $requirment['progress'] = false;
 
-
         $embed = new \Feniks\Bot\Embed($this->guild);
-        $embed
-            ->title($userGuild->pivot->username ? ':sparkles: '.$userGuild->pivot->username.' ('.$this->user->name.')' : ':sparkles: '.$this->user->name )
-            ->description("Below is a summary of your level and points")
-            ->field(':chart_with_upwards_trend: Total XP', $userGuild->pivot->points, true)
-            ->field(':trophy: Current level', $this->level($userGuild->pivot->points), true)
-        ;
 
 
-        $embed->thumbnail($this->user->avatar);
+        $this->interaction->guild->members->fetch($this->user->discord_id)->then(function (Member $member) use ($embed, $requirment, $userGuild) {
+            $embed->title($member->nick ? ':sparkles: '.$member->nick.' ('.$member->user->username.')' : ':sparkles: '.$member->user->username );
+            $embed->thumbnail($member->avatar ? $member->avatar : $member->user->avatar);
+
+            $embed
+                ->description("Below is a summary of your level and points")
+                ->field(':chart_with_upwards_trend: Total XP', $userGuild->pivot->points, true)
+                ->field(':trophy: Current level', $this->level($userGuild->pivot->points), true)
+            ;
 
 
-        if($requirment['next'] !== false) {
-            $xpForLevel = $requirment['next'] - $requirment['current'];
-            $xpAfterLevelUp = $userGuild->pivot->points - $requirment['current'];
-            $precent = round(($xpAfterLevelUp / $xpForLevel) * 100);
-            $progress = "`{$xpAfterLevelUp}/{$xpForLevel} - {$precent}%`";
-            $embed->field(
-                ':shield: Progress to next level',
-                $progress
-            );
-        }
+            if($requirment['next'] !== false) {
+                $xpForLevel = $requirment['next'] - $requirment['current'];
+                $xpAfterLevelUp = $userGuild->pivot->points - $requirment['current'];
+                $precent = round(($xpAfterLevelUp / $xpForLevel) * 100);
+                $progress = "`{$xpAfterLevelUp}/{$xpForLevel} - {$precent}%`";
+                $embed->field(
+                    ':shield: Progress to next level',
+                    $progress
+                );
+            }
 
-        $seasons = $this->guild->seasons()
-            ->orderBy('end_date', 'desc')
-            ->whereDate('start_date', '<=', Carbon::now('UTC'))
-            ->whereDate('end_date', '>=', Carbon::now('UTC')->subWeek())
-            ->get();
+            $seasons = $this->guild->seasons()
+                ->orderBy('end_date', 'desc')
+                ->whereDate('start_date', '<=', Carbon::now('UTC'))
+                ->whereDate('end_date', '>=', Carbon::now('UTC')->subWeek())
+                ->get();
 
-        foreach($seasons as $season) {
-            $userseason = $this->user->seasons()->where('seasons.id', $season->id)->first();
+            foreach($seasons as $season) {
+                $userseason = $this->user->seasons()->where('seasons.id', $season->id)->first();
 
-            $embed->field(
-                ":ticket: Season: *{$season->name}*",
-                "Total `{$userseason->pivot->points} XP`",
-                true
-            );
+                $embed->field(
+                    ":ticket: Season: *{$season->name}*",
+                    "Total `{$userseason->pivot->points} XP`",
+                    true
+                );
 
-        }
+            }
 
-        if(! $this->guild->isConfigured()) {
-            $embed->field(
-                ":robot: Missing configuration",
-                ":x: **Basic configuration for Feniks is missing.** You should tell your server administrator to [configure Feniks](https://docs.feniksbot.com/#/admin/quickstart)."
-            );
-        }
+            if(! $this->guild->isConfigured()) {
+                $embed->field(
+                    ":robot: Missing configuration",
+                    ":x: **Basic configuration for Feniks is missing.** You should tell your server administrator to [configure Feniks](https://docs.feniksbot.com/#/admin/quickstart)."
+                );
+            }
 
-        return new Embed($this->discord, $embed->toArray());
+            $showLevel =  new Embed($this->discord, $embed->toArray());
+            $this->interaction->respondWithMessage(MessageBuilder::new()->addEmbed($showLevel));
+        });
+
+        return true;
     }
 }
