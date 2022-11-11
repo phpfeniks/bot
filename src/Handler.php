@@ -34,8 +34,15 @@ class Handler
         }
 
         $user = User::where('discord_id', $message->author->id)->first();
-        $channel = Channel::where('discord_id', $message->channel->id)->first();
         $guild = Guild::where('discord_id', $message->guild_id)->first();
+        $channel = Channel::updateOrCreate([
+            'discord_id' => $message->channel->id,
+        ], [
+            'guild_id' => $guild->id,
+            'name' => $message->channel->name,
+            'type' => $message->channel->type,
+        ]);
+
 
         $messageLog = new \Feniks\Bot\Models\Message();
         $messageLog->discord_id = $message->id;
