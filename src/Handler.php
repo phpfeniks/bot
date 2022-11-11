@@ -44,27 +44,22 @@ class Handler
         $messageLog->user_id = $user->id;
         $messageLog->length = strlen($message->content);
 
-        $pointsFactor = $guild->settings()->get('points.global.factor', 10);
+        $points = $guild->settings()->get('points.global.factor', 10);
+        $factor = 1;
+        $words = str_word_count($message->content);
 
         $overrides = $guild->settings()->get('points.overrides', []);
         foreach ($overrides as $override) {
             if($override['channel'] == $channel->id)  {
                 if(is_numeric($override['factor'])) {
-                    $pointsFactor = $override['factor'];
+                    $factor = $override['factor'];
                 }
                 break;
             }
         }
 
-
-
         $flood = Cache::get('user.'.$user->id.'.flood', 1);
         $lastMessage = Cache::get('user.'.$user->id.'.lastMessage', 0);
-
-        $messageLen = strlen($message->content);
-        if($messageLen <= 0) {
-            $messageLen = 0.05;
-        }
 
         $timeSinceLastMessage = microtime(true)-$lastMessage;
         if($timeSinceLastMessage <= 0) {
@@ -72,18 +67,39 @@ class Handler
         }
 
         $timeMultiplyer = 1/($timeSinceLastMessage*10);
-        $lenMulitplyer = 1/($messageLen*10);
 
-        $flood = $flood-($timeMultiplyer+$lenMulitplyer);
+        $flood = $flood-$timeMultiplyer;
 
         if($flood < 0) {
             $flood=0;
         }
 
         Cache::put('user.'.$user->id.'.lastMessage', time(), 3600);
-        Cache::put('user.'.$user->id.'.flood', $flood, 600);
+        Cache::put('user.'.$user->id.'.flood', $flood, 60);
 
-        $points = ceil($pointsFactor*$messageLen*$flood);
+        // Add length bonus
+        $lenBonusReq = $guild->settings()->get('points.lengthMultiplier.words', null);
+        if($lenBonusReq) {
+            $bonus = ($points/100)*$guild->settings()->get('points.lengthMultiplier.bonus', 0);
+            $points = $points + ($bonus*floor($words/$lenBonusReq));
+        }
+
+        // add fixed bonuses
+        $bonuses = $guild->settings()->get('points.bonuses', []);
+        $flatBonus = 0;
+        foreach ($bonuses as $bonus) {
+            if($words < $bonus['words']) {
+                continue;
+            }
+            $flatBonus = $bonus['bonus'];
+        }
+        $points = $points + $flatBonus;
+
+
+        $points = ceil($points*$factor*$flood);
+
+        echo $points.PHP_EOL;
+        // finished calculating points
 
         $seasons = $guild->seasons()->whereDate('start_date', '<=', Carbon::now('UTC'))->whereDate('end_date', '>=', Carbon::now('UTC'))->get();
         foreach($seasons as $season) {
