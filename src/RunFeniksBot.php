@@ -232,6 +232,12 @@ class RunFeniksBot extends Command
                 $auditMessage = \Feniks\Bot\Models\Message::where('discord_id', $message->id)->first();
 
                 if($auditChannel && $auditMessage) {
+
+                    if(! $auditChannel->getBotPermissions()->view_channel || ! $auditChannel->getBotPermissions()->send_messages ||  ! $auditChannel->getBotPermissions()->embed_links) {
+                        $discord->getLogger()->warning('No access to audit channel for guild '. $guild->discord_id);
+                        return;
+                    }
+
                     if ($message instanceof Message) {
                         // Message is present in cache
                     }
@@ -278,6 +284,12 @@ class RunFeniksBot extends Command
 
 
                 if($auditChannel && $auditMessage) {
+
+                    if(! $auditChannel->getBotPermissions()->view_channel || ! $auditChannel->getBotPermissions()->send_messages ||  ! $auditChannel->getBotPermissions()->embed_links) {
+                        $discord->getLogger()->warning('No access to audit channel for guild '. $guild->discord_id);
+                        return;
+                    }
+
                     if ($message instanceof Message) {
                         // Message is present in cache
                     }
@@ -287,6 +299,7 @@ class RunFeniksBot extends Command
                         $message->user_id = $user->discord_id;
 
                     }
+
 
                     $embed = new \Feniks\Bot\Embed($guild);
                     $embed

@@ -105,7 +105,6 @@ class Handler
 
         $points = ceil($points*$factor*$flood);
 
-        echo $points.PHP_EOL;
         // finished calculating points
 
         $seasons = $guild->seasons()->whereDate('start_date', '<=', Carbon::now('UTC'))->whereDate('end_date', '>=', Carbon::now('UTC'))->get();
