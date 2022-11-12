@@ -33,6 +33,7 @@ use Feniks\Bot\Guild\Scoreboard;
 use Feniks\Bot\User\Level;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -59,9 +60,8 @@ class RunFeniksBot extends Command
      */
     public function handle()
     {
-        $logger = new Logger('DiscordPHP');
-        $logger->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
 
+        $logger = Log::channel('discord')->getLogger();
         $discord = new Discord([
             'token' => config('services.discord.bot_token'),
             'intents' => Intents::getDefaultIntents() | Intents::GUILDS,
@@ -69,7 +69,7 @@ class RunFeniksBot extends Command
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
-            $this->info('Joined guild:'. $guild['name']);
+            $discord->getLogger()->info('Joined guild:'. $guild['name']);
             $guilds = new Guilds();
             $guildId = $guilds->sync($guild);
 
@@ -81,7 +81,7 @@ class RunFeniksBot extends Command
         });
 
         $discord->on('ready', function (Discord $discord) {
-            $this->info('Feniks ready to fly!');
+            $discord->getLogger()->info('Feniks ready to fly!');
             $activity = new Activity($discord, [
                 'name' => '/help',
                 'type' => Activity::TYPE_LISTENING,
@@ -90,17 +90,16 @@ class RunFeniksBot extends Command
             $discord->updatePresence($activity);
 
             $discord->getLoop()->addPeriodicTimer(3600, function($timer) use($discord) {
-                $this->info('Hourly tick');
+                $discord->getLogger()->info('Hourly tick');
 
                 $announcer = new Announcer($discord);
                 $announcer->starting();
             });
 
             $discord->getLoop()->addPeriodicTimer(7200, function($timer) use($discord) {
-                $this->info('Updating active guilds:');
-
+                $discord->getLogger()->info('Updating active guilds');
                 foreach($discord->guilds as $guild) {
-                    $this->info('-Active in guild: '.$guild->id);
+                    $discord->getLogger()->info('Active in guild: '.$guild->id);
                     $update = GuildModel::where('discord_id', $guild->id)->first();
                     $update->active_at = now('UTC');
                     $update->save();
