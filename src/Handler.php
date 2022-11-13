@@ -104,6 +104,9 @@ class Handler
 
 
         $points = ceil($points*$factor*$flood);
+        if($points > 4294967295) { // Max for int MySQL field. Should be enough.
+            $points = 4294967295;
+        }
 
         // finished calculating points
 
@@ -143,14 +146,13 @@ class Handler
             //dump([$newRank, $currentRank]);
 
             if($newRank !== null && $newRank !== $currentRank) {
-                echo "{$message->member->nick} new rank: {$newRank}", PHP_EOL;
-                if(isset($ranks[$newRank+1])) {
-                    $nextRank = $newRank+1;
+                if (isset($ranks[$newRank + 1])) {
+                    $nextRank = $newRank + 1;
                 }
 
                 $channel = $discord->getChannel($guild->settings()->get('general.announcement-channel', null));
 
-                if($channel) {
+                if ($channel) {
                     $embed = [
                         'color' => '#FEE75C',
                         'author' => [
@@ -159,7 +161,7 @@ class Handler
                         ],
                         "title" => ":sparkles: DING! :sparkles: ",
                         "description" => "<@{$user->discord_id}>, you have reached level {$newRank} :tada:",
-                        'fields' =>array(
+                        'fields' => array(
                             '0' => array(
                                 'name' => ':arrow_forward: Current score',
                                 'value' => "`{$newScore} XP`",
@@ -172,41 +174,62 @@ class Handler
                             ),
                         ),
                         'footer' => array(
-                            'icon_url'  => 'https://cdn.discordapp.com/avatars/1022932382237605978/5f28c64903f5a1e6919cae962c5ebe80.webp?size=1024',
-                            'text'  => 'Powered by Feniks',
+                            'icon_url' => 'https://cdn.discordapp.com/avatars/1022932382237605978/5f28c64903f5a1e6919cae962c5ebe80.webp?size=1024',
+                            'text' => 'Powered by Feniks',
                         ),
                     ];
                     $embed = new Embed($discord, $embed);
                     $reply = MessageBuilder::new()
                         ->addEmbed($embed);
 
-                    $channel->sendMessage($reply)->done(function (Message $reply) {
-                        // ...
-                    });
+                    if ($channel->getBotPermissions()->view_channel && $channel->getBotPermissions()->send_messages && $channel->getBotPermissions()->embed_links) {
+                        $channel->sendMessage($reply)
+                            ->otherwise(function () use ($guild, $discord) {
+                                $discord->getLogger()->warning('Unable to announce level up ', ['guild_id' => $guild->discord_id]);
+                            })
+                            ->done(function (Message $reply) {
+
+                            }
+                            );
+                    } else {
+                        $discord->getLogger()->warning('No access to announcement channel for guild ' . $guild->discord_id);
+                    }
+
                 }
 
-
-                if ($ranks[$newRank]['role'] != 0) {
-                    foreach ($ranks as $rankId => $rank) {
-                        if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0) {
-                            try {
-                                $message->member->removeRole($ranks[$rankId]['role'])->done(function () {
+                if ($message->channel->getBotPermissions()->manage_roles === true || $message->channel->getBotPermissions()->administrator) {
+                    if ($ranks[$newRank]['role'] != 0) {
+                        foreach ($ranks as $rankId => $rank) {
+                            if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0) {
+                                $message->member->removeRole($ranks[$rankId]['role'])
+                                    ->otherwise(function() use ($discord, $guild) {
+                                        $discord->getLogger()->info('Unable to remove old role', [
+                                            'guild_id' => $guild->discord_id
+                                        ]);
+                                    })
+                                    ->done(function () {
 
                                 });
-                            } catch (\RuntimeException $e) {
-                                // I don't care
                             }
                         }
-                    }
-                    if (isset($ranks[$newRank]['role']) && $ranks[$newRank]['role'] != 0) {
-                        try {
-                            $message->member->addRole($ranks[$newRank]['role'])->done(function () {
-
+                        if (isset($ranks[$newRank]['role']) && $ranks[$newRank]['role'] != 0) {
+                            $message->member->addRole($ranks[$newRank]['role'])
+                                ->otherwise(function() use ($discord, $guild) {
+                                    $discord->getLogger()->warning('Unable to assign role', [
+                                        'guild_id' => $guild->discord_id
+                                    ]);
+                                })
+                                ->done(function () use ($discord, $guild) {
+                                    $discord->getLogger()->info('Assigned new role', [
+                                        'guild_id' => $guild->discord_id
+                                    ]);
                             });
-                        } catch (\RuntimeException $e) {
-                            // I don't care
                         }
                     }
+                } else {
+                    $discord->getLogger()->warning('Missing permission to assign roles', [
+                        'guild_id' => $guild->discord_id
+                    ]);
                 }
             }
             $guild->pivot->points = $newScore;
