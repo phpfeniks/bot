@@ -88,7 +88,9 @@ class Handler
         $lenBonusReq = $guild->settings()->get('points.lengthMultiplier.words', null);
         if($lenBonusReq) {
             $bonus = ($points/100)*$guild->settings()->get('points.lengthMultiplier.bonus', 0);
-            $points = $points + ($bonus*floor($words/$lenBonusReq));
+            $lenBonus = ($bonus*floor($words/$lenBonusReq));
+            $logBonuses['lenBonus'] = $lenBonus;
+            $points = $points + $lenBonus;
         }
 
         // add fixed bonuses
@@ -99,14 +101,24 @@ class Handler
                 continue;
             }
             $flatBonus = $bonus['bonus'];
+            $logBonuses['flatBonus'] = $flatBonus;
         }
         $points = $points + $flatBonus;
 
+        $discord->getLogger()->debug('Awarded points', [
+            'message_id' => $message->id,
+            'guild_id' => $guild->id,
+            'points' => $points,
+            'bonuses' => $logBonuses,
+            'factor' => $factor,
+            'flood' => $flood,
+        ]);
 
         $points = ceil($points*$factor*$flood);
         if($points > 4294967295) { // Max for int MySQL field. Should be enough.
             $points = 4294967295;
         }
+
 
         // finished calculating points
 
