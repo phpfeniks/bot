@@ -86,6 +86,8 @@ class Handler
 
         // Add length bonus
         $lenBonusReq = $guild->settings()->get('points.lengthMultiplier.words', null);
+        $logBonuses = [];
+        
         if($lenBonusReq) {
             $bonus = ($points/100)*$guild->settings()->get('points.lengthMultiplier.bonus', 0);
             $lenBonus = ($bonus*floor($words/$lenBonusReq));
