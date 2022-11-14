@@ -167,14 +167,19 @@ class Handler
                 $channel = $discord->getChannel($guild->settings()->get('general.announcement-channel', null));
 
                 if ($channel) {
+                    $levelUpMessage = "You have reached level {$newRank} :tada:";
+                    if(isset($ranks[$newRank]['message']) && trim($ranks[$newRank]['message']) !== '') {
+                        $levelUpMessage = $ranks[$newRank]['message'];
+                    }
+
                     $embed = [
                         'color' => '#FEE75C',
                         'author' => [
                             'name' => $guild->name,
                             'icon_url' => $guild->avatar
                         ],
-                        "title" => ":sparkles: DING! :sparkles: ",
-                        "description" => "<@{$user->discord_id}>, you have reached level {$newRank} :tada:",
+                        "title" => ":sparkles: DING! :sparkles:",
+                        "description" => "<@{$user->discord_id}>! {$levelUpMessage}",
                         'fields' => array(
                             '0' => array(
                                 'name' => ':arrow_forward: Current score',
