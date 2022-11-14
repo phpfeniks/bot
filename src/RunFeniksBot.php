@@ -335,7 +335,7 @@ class RunFeniksBot extends Command
                         $userguild->pivot->points = $userguild->pivot->points - $auditMessage->points;
                         $userguild->pivot->save();
 
-                        $interaction->message->react(':white_check_mark:')->done(function () {
+                        $interaction->message->react('✅')->done(function () {
 
                         });
 
