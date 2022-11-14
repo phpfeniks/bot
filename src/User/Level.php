@@ -113,7 +113,7 @@ class Level
                 $embed->field(
                     ":ticket: Season: *{$season->name}*",
                     "Total `{$userseason->pivot->points} XP`",
-                    true
+                    false
                 );
 
             }
