@@ -219,7 +219,7 @@ class Handler
                 if ($message->channel->getBotPermissions()->manage_roles === true || $message->channel->getBotPermissions()->administrator) {
                     if ($ranks[$newRank]['role'] != 0) {
                         foreach ($ranks as $rankId => $rank) {
-                            if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0) {
+                            if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0 && $rankId !== $newRank) {
                                 $message->member->removeRole($ranks[$rankId]['role'])
                                     ->otherwise(function() use ($discord, $guild) {
                                         $discord->getLogger()->info('Unable to remove old role', [
