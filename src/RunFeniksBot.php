@@ -53,6 +53,10 @@ class RunFeniksBot extends Command
      */
     protected $description = 'Command description';
 
+    protected $commands = [
+        \Feniks\Bot\Commands\Ping::class,
+    ];
+
     /**
      * Execute the console command.
      *
@@ -106,6 +110,8 @@ class RunFeniksBot extends Command
                 }
 
             });
+
+            $this->registerCommands($discord);
 
             $command = new SlashCommand($discord, [
                 'name' => 'help',
@@ -408,5 +414,23 @@ class RunFeniksBot extends Command
 
         $discord->run();
         return 0;
+    }
+
+    private function registerCommands(Discord $discord)
+    {
+        foreach($this->commands as $class) {
+            $command = new $class($discord);
+            $SlashCommand = new SlashCommand($discord, [
+                'name' => $command->getName(),
+                'description' => $command->getDescription()
+            ]);
+            $discord->application->commands->save($SlashCommand);
+
+            $discord->listenCommand($command->getName(), function (Interaction $interaction) use($command) {
+                $command->handle($interaction);
+            });
+        }
+
+
     }
 }
