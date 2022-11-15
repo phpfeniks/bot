@@ -56,6 +56,7 @@ class RunFeniksBot extends Command
     protected $commands = [
         \Feniks\Bot\Commands\Ping::class,
         \Feniks\Bot\Commands\Help::class,
+        \Feniks\Bot\Commands\Scores::class,
     ];
 
     /**
@@ -113,12 +114,6 @@ class RunFeniksBot extends Command
             });
 
             $this->registerCommands($discord);
-
-            $command = new SlashCommand($discord, [
-                'name' => 'scores',
-                'description' => 'Show total scores for this server'
-            ]);
-            $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, [
                 'name' => 'level',
@@ -349,11 +344,6 @@ class RunFeniksBot extends Command
 
                     });
                 }
-            });
-
-            $discord->listenCommand('scores', function (Interaction $interaction) use($discord) {
-                $scoreboard = new Scoreboard($interaction, $discord);
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
             });
 
             $discord->listenCommand('season', function (Interaction $interaction) use($discord) {

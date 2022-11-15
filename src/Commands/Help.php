@@ -26,5 +26,4 @@ class Help extends Command
 
         $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($this->discord, $embed->toArray())));
     }
-
 }
