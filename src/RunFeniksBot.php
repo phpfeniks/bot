@@ -55,6 +55,7 @@ class RunFeniksBot extends Command
 
     protected $commands = [
         \Feniks\Bot\Commands\Ping::class,
+        \Feniks\Bot\Commands\Help::class,
     ];
 
     /**
@@ -112,12 +113,6 @@ class RunFeniksBot extends Command
             });
 
             $this->registerCommands($discord);
-
-            $command = new SlashCommand($discord, [
-                'name' => 'help',
-                'description' => 'Get started using Feniks'
-            ]);
-            $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, [
                 'name' => 'scores',
@@ -382,18 +377,6 @@ class RunFeniksBot extends Command
 
             });
 
-            $discord->listenCommand('help', function (Interaction $interaction) use($discord) {
-                $embed = new \Feniks\Bot\Embed($interaction->guild);
-                $embed
-                    ->title(':information_source: Get started with Feniks')
-                    ->description(":robot: Bip boop! I'm Feniks, nice to meet you. To see all my commands `type /` and press my avatar to the left.")
-                    ->field(
-                        ':ticket: Server owner?',
-                        "Log in to the dashboard at [feniksbot.com](https://feniksbot.com) to get started."
-                    );
-
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord, $embed->toArray())));
-            });
 
        /*     $discord->listenCommand('profile', function (Interaction $interaction) use($discord) {
                 $ar = ActionRow::new();
