@@ -167,7 +167,8 @@ class Handler
                 $channel = $discord->getChannel($guild->settings()->get('general.announcement-channel', null));
 
                 if ($channel) {
-                    $levelUpMessage = "You have reached level {$newRank} :tada:";
+                    $annRank = $newRank+1;
+                    $levelUpMessage = "You have reached level {$annRank} :tada:";
                     if(isset($ranks[$newRank]['message']) && trim($ranks[$newRank]['message']) !== '') {
                         $levelUpMessage = $ranks[$newRank]['message'];
                     }
