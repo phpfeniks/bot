@@ -10,11 +10,11 @@ class Command
 {
     protected $name;
     protected $description;
-    protected $dsicord;
+    protected $discord;
 
     public function __construct(Discord $discord)
     {
-        $this->dsicord = $discord;
+        $this->discord = $discord;
     }
 
     /**
