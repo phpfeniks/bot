@@ -57,6 +57,7 @@ class RunFeniksBot extends Command
         \Feniks\Bot\Commands\Ping::class,
         \Feniks\Bot\Commands\Help::class,
         \Feniks\Bot\Commands\Scores::class,
+        \Feniks\Bot\Commands\Seasons::class,
     ];
 
     /**
@@ -151,9 +152,6 @@ class RunFeniksBot extends Command
             ]);
             $discord->application->commands->save($command);*/
 
-
-            $command = new SlashCommand($discord, ['name' => 'seasons', 'description' => 'List all the seasons for this server']);
-            $discord->application->commands->save($command);
 
 
             $discord->on(Event::CHANNEL_CREATE, function (Channel $channel, Discord $discord) {
@@ -351,11 +349,6 @@ class RunFeniksBot extends Command
                     $scoreboard = new Scoreboard($interaction, $discord, $option['value']);
                 }
                 $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
-            });
-
-            $discord->listenCommand('seasons', function (Interaction $interaction) use($discord) {
-                $overview = new Overview($interaction, $discord);
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($overview->all()));
             });
 
             $discord->listenCommand('level', function (Interaction $interaction) use($discord) {
