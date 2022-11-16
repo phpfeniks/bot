@@ -10,6 +10,7 @@ use Discord\Parts\Channel\Channel;
 use Discord\Parts\Guild\Role;
 use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\User\Activity;
+use Feniks\Bot\Events\MessageCreate;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
@@ -60,6 +61,10 @@ class RunFeniksBot extends Command
         \Feniks\Bot\Commands\Scores::class,
         \Feniks\Bot\Commands\Season::class,
         \Feniks\Bot\Commands\Seasons::class,
+    ];
+
+    protected $events = [
+        Event::MESSAGE_CREATE => \Feniks\Bot\Events\MessageCreate::class,
     ];
 
     /**
@@ -117,6 +122,7 @@ class RunFeniksBot extends Command
             });
 
             $this->registerCommands($discord);
+            $this->registerEvents($discord);
 
             $discord->on(Event::CHANNEL_CREATE, function (Channel $channel, Discord $discord) {
                 $guild = GuildModel::where('discord_id', $channel->guild_id)->first();
@@ -179,10 +185,13 @@ class RunFeniksBot extends Command
             });
 
 
-            $discord->on(Event::MESSAGE_CREATE, function (Message $message, Discord $discord) {
+            /*$discord->on(Event::MESSAGE_CREATE, function (Message $message, Discord $discord) {
                 Handler::seen($message);
                 Handler::message($message, $discord);
-            });
+            });*/
+
+
+
 
             $discord->on(Event::MESSAGE_UPDATE, function (Message $message, Discord $discord, ?Message $oldMessage) {
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
@@ -329,7 +338,15 @@ class RunFeniksBot extends Command
                 $command->handle($interaction);
             });
         }
+    }
 
-
+    private function registerEvents(Discord $discord)
+    {
+        foreach($this->events as $event => $handler) {
+            $discord->on($event, function () use($handler) {
+                $handler = new $handler(func_get_args());
+                $handler->handle();
+            });
+        }
     }
 }
