@@ -56,9 +56,10 @@ class RunFeniksBot extends Command
     protected $commands = [
         \Feniks\Bot\Commands\Ping::class,
         \Feniks\Bot\Commands\Help::class,
-        \Feniks\Bot\Commands\Scores::class,
-        \Feniks\Bot\Commands\Seasons::class,
         \Feniks\Bot\Commands\Level::class,
+        \Feniks\Bot\Commands\Scores::class,
+        \Feniks\Bot\Commands\Season::class,
+        \Feniks\Bot\Commands\Seasons::class,
     ];
 
     /**
@@ -116,30 +117,6 @@ class RunFeniksBot extends Command
             });
 
             $this->registerCommands($discord);
-
-
-            $command = new SlashCommand($discord, [
-                'name' => 'season',
-                'description' => 'Show scores for selected season',
-                'options' => [
-                    new Option($discord, [
-                        'name' => 'season',
-                        'description' => 'Season to show scores for (see /seasons)',
-                        'required' => true,
-                        'type' => Option::STRING,
-                        'autocomplete' => false
-                    ])
-                ]
-            ]);
-            $discord->application->commands->save($command);
-
-            /*$command = new SlashCommand($discord, [
-                'name' => 'profile',
-                'description' => 'Edit the bio and colors for your profile card',
-            ]);
-            $discord->application->commands->save($command);*/
-
-
 
             $discord->on(Event::CHANNEL_CREATE, function (Channel $channel, Discord $discord) {
                 $guild = GuildModel::where('discord_id', $channel->guild_id)->first();
@@ -331,29 +308,6 @@ class RunFeniksBot extends Command
                 }
             });
 
-            $discord->listenCommand('season', function (Interaction $interaction) use($discord) {
-                foreach ($interaction['data']['options'] as $option) {
-                    $scoreboard = new Scoreboard($interaction, $discord, $option['value']);
-                }
-                $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
-            });
-
-
-       /*     $discord->listenCommand('profile', function (Interaction $interaction) use($discord) {
-                $ar = ActionRow::new();
-                $ti = TextInput::new('Color (hex)', TextInput::STYLE_SHORT, 'color');
-                $ar->addComponent($ti);
-                $ar2 = ActionRow::new();
-                $ti2 = TextInput::new('About ', TextInput::STYLE_PARAGRAPH, 'about');
-                $ar2->addComponent($ti2);
-                $customId = '123';
-                $interaction->showModal('Edit profile card', $customId, [$ar, $ar2], function (Interaction $interaction, Collection $components) {
-                    var_dump($components);
-                    // $components['first']->value
-                    // $components['second']->value
-                    $interaction->acknowledge();
-                });
-            });*/
         });
 
         $discord->run();

@@ -130,7 +130,6 @@ class Level
                     );
                 }
 
-                dump($embed->toArray());
                 $showLevel =  new Embed($this->discord, $embed->toArray());
                 $this->interaction->respondWithMessage(MessageBuilder::new()->addEmbed($showLevel));
             });
