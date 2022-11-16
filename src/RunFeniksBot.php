@@ -58,6 +58,7 @@ class RunFeniksBot extends Command
         \Feniks\Bot\Commands\Help::class,
         \Feniks\Bot\Commands\Scores::class,
         \Feniks\Bot\Commands\Seasons::class,
+        \Feniks\Bot\Commands\Level::class,
     ];
 
     /**
@@ -116,20 +117,6 @@ class RunFeniksBot extends Command
 
             $this->registerCommands($discord);
 
-            $command = new SlashCommand($discord, [
-                'name' => 'level',
-                'description' => 'Show the user information card for you or any other user.',
-                'options' => [
-                    new Option($discord, [
-                        'name' => 'user',
-                        'description' => 'User to display',
-                        'required' => false,
-                        'type' => Option::USER,
-                        'autocomplete' => false
-                    ])
-                ]
-            ]);
-            $discord->application->commands->save($command);
 
             $command = new SlashCommand($discord, [
                 'name' => 'season',
@@ -351,15 +338,6 @@ class RunFeniksBot extends Command
                 $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($scoreboard->getEmbed()));
             });
 
-            $discord->listenCommand('level', function (Interaction $interaction) use($discord) {
-                $level = new Level($interaction, $discord);
-                $showLevel = $level->showLevel();
-                if(! $showLevel) {
-                    $interaction->respondWithMessage(MessageBuilder::new()->setContent(':information_source:  I have no information about this user.'));
-                }
-
-            });
-
 
        /*     $discord->listenCommand('profile', function (Interaction $interaction) use($discord) {
                 $ar = ActionRow::new();
@@ -388,7 +366,8 @@ class RunFeniksBot extends Command
             $command = new $class($discord);
             $SlashCommand = new SlashCommand($discord, [
                 'name' => $command->getName(),
-                'description' => $command->getDescription()
+                'description' => $command->getDescription(),
+                'options' => $command->getOptions(),
             ]);
             $discord->application->commands->save($SlashCommand);
 
