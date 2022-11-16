@@ -1,19 +1,53 @@
 <?php
-namespace Feniks\Bot;
 
-use Feniks\Bot\Models\Channel;
-use Feniks\Bot\Models\Guild;
-use Feniks\Bot\Models\Season;
-use Feniks\Bot\Models\User;
+
+namespace Feniks\Bot\Events;
+
+
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Embed\Embed;
+use Feniks\Bot\Models\Channel;
+use Feniks\Bot\Models\Guild;
+use Feniks\Bot\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class Handler
+class MessageCreate
 {
+
+    protected $args = [
+        [
+            'type' => Message::class,
+            'var' => 'message'
+        ],
+        [
+            'type' => Discord::class,
+            'var' => 'discord'
+        ]
+    ];
+
+    protected $message ;
+    protected $discord;
+
+    public function __construct(Array $args)
+    {
+        foreach($args as $index => $argument) {
+            if(! isset($this->args[$index])) {
+                break;
+            }
+            if($argument instanceof $this->args[$index]['type']) {
+                $this->{$this->args[$index]['var']} = $argument;
+            }
+        }
+    }
+
+    public function handle()
+    {
+        $this->seen($this->message);
+        $this->message($this->message, $this->discord);
+    }
 
     public static function seen(Message $message)
     {
@@ -229,7 +263,7 @@ class Handler
                                     })
                                     ->done(function () {
 
-                                });
+                                    });
                             }
                         }
                         if (isset($ranks[$newRank]['role']) && $ranks[$newRank]['role'] != 0) {
@@ -243,7 +277,7 @@ class Handler
                                     $discord->getLogger()->info('Assigned new role', [
                                         'guild_id' => $guild->discord_id
                                     ]);
-                            });
+                                });
                         }
                     }
                 } else {
@@ -260,4 +294,5 @@ class Handler
         $messageLog->points = $points;
         $messageLog->save();
     }
+
 }
