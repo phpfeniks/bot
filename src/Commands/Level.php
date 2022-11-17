@@ -26,7 +26,6 @@ class Level extends Command
         $level = new \Feniks\Bot\User\Level($interaction, $this->discord);
         $showLevel = $level->showLevel();
         if(! $showLevel) {
-            dump('nooo');
             $interaction->respondWithMessage(MessageBuilder::new()->setContent(':information_source:  I have no information about this user.'));
         }
     }
