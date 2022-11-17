@@ -195,6 +195,9 @@ class RunFeniksBot extends Command
 
             $discord->on(Event::MESSAGE_UPDATE, function (Message $message, Discord $discord, ?Message $oldMessage) {
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
+                if(! $guild) {
+                    return;
+                }
                 $auditChannel = $discord->getChannel($guild->settings()->get('general.audit-channel', null));
                 $auditMessage = \Feniks\Bot\Models\Message::where('discord_id', $message->id)->first();
 
