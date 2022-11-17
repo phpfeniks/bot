@@ -58,7 +58,10 @@ class MessageCreate
             'avatar' => '',
         ]);
         $guild = Guild::where('discord_id', $message->guild_id)->first();
-        $guild->users()->syncWithoutDetaching([$user->id => ['username' => $message->member?->nick]]);
+        if(! $guild) {
+            return;
+        }
+        $guild->users()->syncWithoutDetaching([$user->id => []]);
     }
 
     public static function message(Message $message , Discord $discord)
