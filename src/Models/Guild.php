@@ -2,6 +2,8 @@
 
 namespace Feniks\Bot\Models;
 
+use Discord\Discord;
+use Discord\Parts\Channel\Message;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use xqus\ModelSettings\HasSettings;
@@ -17,7 +19,18 @@ class Guild extends Model
         'settings' => 'json',
     ];
 
+    public function audit($message, Discord $discord, $level = 'info')
+    {
+        $auditChannel = $discord->getChannel($this->settings()->get('general.audit-channel', null));
 
+        if($auditChannel) {
+            if (!$auditChannel->getBotPermissions()->view_channel || !$auditChannel->getBotPermissions()->send_messages || !$auditChannel->getBotPermissions()->embed_links) {
+                $discord->getLogger()->warning('No access to audit channel for guild ' . $this->discord_id);
+                return false;
+            }
+        }
+        $auditChannel->sendMessage("`{$level}` {$message}")->done();
+    }
 
     public function channels()
     {
