@@ -11,7 +11,8 @@
   ],
   "require": {
     "team-reflex/discord-php": "dev-master",
-    "xqus/laravel-model-settings": "dev-master"
+    "xqus/laravel-model-settings": "dev-master",
+    "hashids/hashids": "^4.1"
   },
   "extra": {
     "laravel": {
