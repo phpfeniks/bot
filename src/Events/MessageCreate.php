@@ -11,6 +11,7 @@ use Discord\Parts\Embed\Embed;
 use Feniks\Bot\Models\Channel;
 use Feniks\Bot\Models\Guild;
 use Feniks\Bot\Models\User;
+use Feniks\Bot\User\Progress;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -87,6 +88,8 @@ class MessageCreate
         $messageLog->channel_id = $channel->id;
         $messageLog->user_id = $user->id;
         $messageLog->length = strlen($message->content);
+
+        $progress = new Progress($discord, $message->guild, $message->member);
 
         $points = $guild->settings()->get('points.global.factor', 10);
         $factor = 1;
@@ -249,44 +252,15 @@ class MessageCreate
                             }
                             );
                     } else {
-                        $discord->getLogger()->warning('No access to announcement channel for guild ' . $guild->discord_id);
+                        $guild->audit("Bot is missing permissions to <#{$channel->id}>", $discord, 'warning');
                     }
 
                 }
 
                 if ($message->channel->getBotPermissions()->manage_roles === true || $message->channel->getBotPermissions()->administrator) {
-                    if ($ranks[$newRank]['role'] != 0) {
-                        foreach ($ranks as $rankId => $rank) {
-                            if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0 && $rankId !== $newRank) {
-                                $message->member->removeRole($ranks[$rankId]['role'])
-                                    ->otherwise(function() use ($discord, $guild) {
-                                        $discord->getLogger()->info('Unable to remove old role', [
-                                            'guild_id' => $guild->discord_id
-                                        ]);
-                                    })
-                                    ->done(function () {
-
-                                    });
-                            }
-                        }
-                        if (isset($ranks[$newRank]['role']) && $ranks[$newRank]['role'] != 0) {
-                            $message->member->addRole($ranks[$newRank]['role'])
-                                ->otherwise(function() use ($discord, $guild) {
-                                    $discord->getLogger()->warning('Unable to assign role', [
-                                        'guild_id' => $guild->discord_id
-                                    ]);
-                                })
-                                ->done(function () use ($discord, $guild) {
-                                    $discord->getLogger()->info('Assigned new role', [
-                                        'guild_id' => $guild->discord_id
-                                    ]);
-                                });
-                        }
-                    }
+                    $progress->reAssignRoles($newScore);
                 } else {
-                    $discord->getLogger()->warning('Missing permission to assign roles', [
-                        'guild_id' => $guild->discord_id
-                    ]);
+                    $guild->audit('Bot is missing permissions to manage roles.', $discord, 'warning');
                 }
             }
             $guild->pivot->points = $newScore;
@@ -296,6 +270,10 @@ class MessageCreate
 
         $messageLog->points = $points;
         $messageLog->save();
+
+        if(rand(0,50) == 19) {
+            $progress->reAssignRoles($newScore);
+        }
     }
 
 }
