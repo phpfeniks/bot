@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
 
 class Level
 {
+    use Ranks;
+
     private $guild;
     private $discord;
     private $user;
@@ -33,32 +35,7 @@ class Level
         $this->interaction = $interaction;
     }
 
-    public function level($points)
-    {
-        $currentRank = 0;
-        foreach($this->ranks() as $rankId => $rank) {
-            if($points >= (int) $rank['requirement']) {
-                $currentRank = $rankId;
-            }
 
-        }
-
-        return $currentRank;
-    }
-
-    public function levelRequirement($level)
-    {
-        if(isset($this->ranks()[$level]['requirement'])) {
-            return $this->ranks()[$level]['requirement'];
-        }
-
-        return false;
-    }
-
-    public function ranks()
-    {
-        return $this->guild->settings()->get('points.ranks', []);
-    }
 
     public function showLevel()
     {
@@ -88,9 +65,9 @@ class Level
                 $embed->thumbnail($member->avatar ? $member->avatar : $member->user->avatar);
 
                 $embed
-                    ->description("Below is a summary of your level and points")
+                    ->description(" ")
                     ->field(':chart_with_upwards_trend: Total XP', $userGuild->pivot->points, true)
-                    ->field(':trophy: Current level', $this->level($userGuild->pivot->points), true)
+                    ->field(':trophy: Current level', $this->level($userGuild->pivot->points)+1, true)
                 ;
 
 
