@@ -27,7 +27,7 @@ class Level
         $this->guild =  GuildModel::where('discord_id', $interaction->guild_id)->first();
 
         $this->user = User::where('discord_id', $interaction->user->id)->first();
-        if($interaction->data->options['user'] !== null) {
+        if(isset($interaction->data->options) && $interaction->data->options['user'] !== null) {
             $this->user = User::where('discord_id', $interaction->data->options['user']->value)->first();
         }
 
@@ -49,13 +49,11 @@ class Level
         }
 
 
-        $requirment['current'] = $this->levelRequirement($this->level($userGuild->pivot->points));
+        $requirment['current'] = ($this->level($userGuild->pivot->points) > 0) ? $this->levelRequirement($this->level($userGuild->pivot->points)) : 0;
         $requirment['next'] = $this->levelRequirement($this->level($userGuild->pivot->points)+1);
         $requirment['progress'] = false;
 
         $embed = new \Feniks\Bot\Embed($this->guild);
-
-
         $this->interaction->guild->members->fetch($this->user->discord_id)
             ->otherwise(function () {
 
