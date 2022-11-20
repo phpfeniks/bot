@@ -61,6 +61,7 @@ class RunFeniksBot extends Command
         \Feniks\Bot\Commands\Scores::class,
         \Feniks\Bot\Commands\Season::class,
         \Feniks\Bot\Commands\Seasons::class,
+        \Feniks\Bot\Commands\ManageXp::class,
     ];
 
     protected $events = [
