@@ -12,7 +12,9 @@
   "require": {
     "team-reflex/discord-php": "dev-master",
     "xqus/laravel-model-settings": "dev-master",
-    "hashids/hashids": "^4.1"
+    "hashids/hashids": "^4.1",
+    "wyrihaximus/react-cache-redis": "^4.2",
+    "clue/redis-react": "^2.6"
   },
   "extra": {
     "laravel": {
