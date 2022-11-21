@@ -23,12 +23,12 @@ class Guild extends Model
     {
         $auditChannel = $discord->getChannel($this->settings()->get('general.audit-channel', null));
 
-        if($auditChannel) {
-            if (!$auditChannel->getBotPermissions()->view_channel || !$auditChannel->getBotPermissions()->send_messages || !$auditChannel->getBotPermissions()->embed_links) {
-                $discord->getLogger()->warning('No access to audit channel for guild ' . $this->discord_id);
-                return false;
-            }
+
+        if (!$auditChannel || !$auditChannel->getBotPermissions()->view_channel || !$auditChannel->getBotPermissions()->send_messages || !$auditChannel->getBotPermissions()->embed_links) {
+            $discord->getLogger()->info('No access to audit channel for guild ' . $this->discord_id);
+            return false;
         }
+
         $auditChannel->sendMessage("`{$level}` {$message}")->done();
     }
 
