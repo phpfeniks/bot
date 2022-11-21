@@ -8,7 +8,7 @@ class FeniksServiceProvider extends ServiceProvider
 {
   public function register()
   {
-
+      $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'feniks');
   }
 
   public function boot()
