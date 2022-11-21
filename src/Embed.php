@@ -4,6 +4,8 @@
 namespace Feniks\Bot;
 
 
+use Feniks\Bot\Models\Guild;
+
 class Embed
 {
   var $embed = [];
@@ -12,10 +14,6 @@ class Embed
   {
     $this->embed = [
       'color' => '#FEE75C',
-      'author' => [
-        'name' => $guild->name,
-        'icon_url' => $guild->avatar
-      ],
       "title" => "",
       "description" => "",
       'fields' => [
@@ -27,6 +25,13 @@ class Embed
       ),
       'timestamp' => now('UTC'),
     ];
+
+    if($guild instanceof Guild) {
+        $this->embed['author'] = [
+            'name' => $guild->name,
+            'icon_url' => $guild->avatar
+        ];
+    }
 
     return $this;
   }
