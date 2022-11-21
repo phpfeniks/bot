@@ -63,13 +63,11 @@ class Progress
                                 ->then(function() use($ranks, $rankId, $member) {
                                     $this->guild->audit("Removed <@&{$ranks[$rankId]['role']}> from <@{$member->id}>.", $this->discord);
                                 }, function (\Exception $e) use($ranks, $rankId, $member) {
-                                    $this->guild->audit("Just making sure <@{$member->id}> does not have <@&{$ranks[$rankId]['role']}>: `{$e->getMessage()}`", $this->discord);
+                                    //$this->guild->audit("Just making sure <@{$member->id}> does not have <@&{$ranks[$rankId]['role']}>: `{$e->getMessage()}`", $this->discord);
                                 });
                         }, function (\Exception $e){
                             $this->guild->audit("Error fetching user data: `{$e->getMessage()}`", $this->discord, 'warning');
                         });
-                } else {
-                    $this->guild->audit("Unable to remove role <@&{$ranks[$rankId]['role']}> from <@{$this->member->id}>", $this->discord);
                 }
             }
         }
@@ -81,7 +79,7 @@ class Progress
             return;
         }
         if(! $this->canAssignRole($role)) {
-            $this->guild->audit("Unable to add role <@&{$role}> to <@{$this->member->id}>", $this->discord);
+            $this->guild->audit("Unable to add role <@&{$role}> to <@{$this->member->id}>, check permissions", $this->discord);
         }
         $this->member->addRole($role)
             ->then(function() use($role) {
