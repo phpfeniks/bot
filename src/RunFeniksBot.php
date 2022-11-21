@@ -4,19 +4,13 @@ namespace Feniks\Bot;
 
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
-use Discord\Builders\Components\TextInput;
-use Discord\Helpers\Collection;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Guild\Role;
-use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\User\Activity;
-use Feniks\Bot\Events\MessageCreate;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
-use Feniks\Bot\Season\Overview;
 use Feniks\Bot\Season\Announcer;
-use Feniks\Bot\Models\Season;
 use Feniks\Bot\Models\User;
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
@@ -30,13 +24,10 @@ use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Interactions\Command\Command as SlashCommand;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
-use Feniks\Bot\Guild\Scoreboard;
-use Feniks\Bot\User\Level;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use React\EventLoop\Loop;
+
 
 class RunFeniksBot extends Command
 {
@@ -75,12 +66,17 @@ class RunFeniksBot extends Command
      */
     public function handle()
     {
+        $loop = Loop::get();
+        $redis = (new \Clue\React\Redis\Factory($loop))->createLazyClient('localhost:6379');
+        $cache = new \WyriHaximus\React\Cache\Redis($redis, 'feniks:');
 
         $logger = Log::channel('discord')->getLogger();
         $discord = new Discord([
             'token' => config('services.discord.bot_token'),
             'intents' => Intents::getDefaultIntents() | Intents::GUILDS,
             'logger' => $logger,
+            'loop' => $loop,
+            'cacheInterface' => $cache,
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
