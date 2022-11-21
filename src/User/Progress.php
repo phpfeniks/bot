@@ -61,7 +61,7 @@ class Progress
                         ->then(function (Member $member) use($ranks, $rankId)  {
                             $member->removeRole((int) $ranks[$rankId]['role'])
                                 ->then(function() use($ranks, $rankId, $member) {
-                                    $this->guild->audit("Removed <@&{$ranks[$rankId]['role']}> from <@{$member->id}>.", $this->discord);
+                                    //$this->guild->audit("Removed <@&{$ranks[$rankId]['role']}> from <@{$member->id}>.", $this->discord);
                                 }, function (\Exception $e) use($ranks, $rankId, $member) {
                                     //$this->guild->audit("Just making sure <@{$member->id}> does not have <@&{$ranks[$rankId]['role']}>: `{$e->getMessage()}`", $this->discord);
                                 });
