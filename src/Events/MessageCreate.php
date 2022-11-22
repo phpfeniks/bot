@@ -81,13 +81,7 @@ class MessageCreate
             'type' => $message->channel->type,
         ]);
 
-
-        $messageLog = new \Feniks\Bot\Models\Message();
-        $messageLog->discord_id = $message->id;
-        $messageLog->guild_id = $guild->id;
-        $messageLog->channel_id = $channel->id;
-        $messageLog->user_id = $user->id;
-        $messageLog->length = strlen($message->content);
+        Cache::put('message-'.$message->id.'-author', $message->author->id, 3600);
 
         $progress = new Progress($discord, $message->guild, $message->member);
 
@@ -147,14 +141,6 @@ class MessageCreate
         }
         $points = $points + $flatBonus;
 
-        $discord->getLogger()->debug('Awarded points', [
-            'message_id' => $message->id,
-            'guild_id' => $guild->id,
-            'points' => $points,
-            'bonuses' => $logBonuses,
-            'factor' => $factor,
-            'flood' => $flood,
-        ]);
 
         $points = ceil($points*$factor*$flood);
         if($points > 4294967295) { // Max for int MySQL field. Should be enough.
@@ -267,9 +253,6 @@ class MessageCreate
             $guild->pivot->save();
         }
 
-
-        $messageLog->points = $points;
-        $messageLog->save();
 
         if(rand(0,50) == 19) {
             $progress->reAssignRoles($newScore);
