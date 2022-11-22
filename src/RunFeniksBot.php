@@ -10,6 +10,7 @@ use Discord\Parts\User\Activity;
 use Feniks\Bot\Guild\Channels;
 use Feniks\Bot\Guild\Guilds;
 use Feniks\Bot\Guild\Roles;
+use Feniks\Bot\Models\AuditLog;
 use Feniks\Bot\Season\Announcer;
 use Feniks\Bot\Models\User;
 use Discord\Builders\MessageBuilder;
@@ -25,6 +26,7 @@ use Discord\Parts\Interactions\Command\Command as SlashCommand;
 use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use React\EventLoop\Loop;
 
@@ -187,134 +189,23 @@ class RunFeniksBot extends Command
                 Handler::message($message, $discord);
             });*/
 
-
-
-
             $discord->on(Event::MESSAGE_UPDATE, function (Message $message, Discord $discord, ?Message $oldMessage) {
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
                 if(! $guild) {
                     return;
                 }
-                $auditChannel = $discord->getChannel($guild->settings()->get('general.audit-channel', null));
-                $auditMessage = \Feniks\Bot\Models\Message::where('discord_id', $message->id)->first();
-
-                if($auditChannel && $auditMessage) {
-
-                    if(! $auditChannel->getBotPermissions()->view_channel || ! $auditChannel->getBotPermissions()->send_messages ||  ! $auditChannel->getBotPermissions()->embed_links) {
-                        $discord->getLogger()->warning('No access to audit channel for guild '. $guild->discord_id);
-                        return;
-                    }
-
-                    if ($message instanceof Message) {
-                        // Message is present in cache
-                    }
-                    // If the message is not present in the cache:
-                    else {
-                        $user = User::where('id', $auditMessage->user_id)->first();
-                        $message->user_id = $user->discord_id;
-
-                    }
-                    $lengthDifference = strlen($message->content) - $auditMessage->length;
-
-                    $embed = new \Feniks\Bot\Embed($guild);
-                    $embed
-                        ->title(':pencil: Message edited')
-                        ->description("A message in <#{$message->channel_id}> was edited by <@{$message->user_id}>")
-                        ->field(
-                            'New message',
-                            "`{$message->content}`"
-                        )
-                        ->field(
-                            ':speech_balloon: Length difference',
-                            "`{$lengthDifference} chars`",
-                            true
-                        )
-                        ->field(
-                            ':bar_chart: Points awarded',
-                            "`{$auditMessage->points} XP`",
-                            true
-                        );
-
-                    $reply = MessageBuilder::new()
-                        ->addEmbed(new Embed($discord, $embed->toArray()));
-
-                    $auditChannel->sendMessage($reply)->done(function (Message $reply)  {
-
-                    });
-                }
+                $guild->audit("A message in <#{$message->channel_id}> was edited by <@{$message->user_id}>", $discord, AuditLog::NOTICE);
             });
 
             $discord->on(Event::MESSAGE_DELETE, function (object $message, Discord $discord) {
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
-                $auditChannel = $discord->getChannel($guild->settings()->get('general.audit-channel', null));
-                $auditMessage = \Feniks\Bot\Models\Message::where('discord_id', $message->id)->first();
 
-
-                if($auditChannel && $auditMessage) {
-
-                    if(! $auditChannel->getBotPermissions()->view_channel || ! $auditChannel->getBotPermissions()->send_messages ||  ! $auditChannel->getBotPermissions()->embed_links) {
-                        $discord->getLogger()->warning('No access to audit channel for guild '. $guild->discord_id);
-                        return;
-                    }
-
-                    if ($message instanceof Message) {
-                        // Message is present in cache
-                    }
-                    // If the message is not present in the cache:
-                    else {
-                        $user = User::where('id', $auditMessage->user_id)->first();
-                        $message->user_id = $user->discord_id;
-
-                    }
-
-
-                    $embed = new \Feniks\Bot\Embed($guild);
-                    $embed
-                        ->title(':x: Message deleted')
-                        ->description("A message in <#{$message->channel_id}> was deleted by <@{$message->user_id}>")
-                        ->field(
-                            'Message',
-                            isset($message->content) ? "`{$message->content}`" : '`-`'
-                        )
-                        ->field(
-                            ':speech_balloon: Message length',
-                            "`{$auditMessage->length} chars`",
-                            true
-                        )
-                        ->field(
-                            ':bar_chart: Points awarded',
-                            "`{$auditMessage->points} XP`",
-                            true
-                        );
-
-                    $button = Button::new(Button::STYLE_DANGER)
-                        ->setLabel('Remove points');
-                    $button->setListener(function (Interaction $interaction) use($auditMessage) {
-                        $user = User::where('id', $auditMessage->user_id)->first();
-                        $userguild = $user->guilds()->where('guilds.id', $auditMessage->guild_id)->first();
-
-                        $userguild->pivot->points = $userguild->pivot->points - $auditMessage->points;
-                        $userguild->pivot->save();
-
-                        $interaction->message->react('✅')->done(function () {
-
-                        });
-
-                        $interaction->respondWithMessage(MessageBuilder::new()
-                            ->setContent(":white_check_mark: Removed `{$auditMessage->points} XP` from <@{$user->discord_id}>."));
-                    }, $discord);
-
-                    $row = ActionRow::new()
-                        ->addComponent($button);
-
-                    $reply = MessageBuilder::new()
-                        ->addEmbed(new Embed($discord, $embed->toArray()))
-                        ->addComponent($row);
-
-                    $auditChannel->sendMessage($reply)->done(function (Message $reply)  {
-
-                    });
+                if(! $guild) {
+                    return;
                 }
+
+                $userId = Cache::get('message-'.$message->id.'-author', 'unknown');
+                $guild->audit("A message by <@{$userId}> in <#{$message->channel_id}> was deleted", $discord, AuditLog::WARNING);
             });
 
         });
