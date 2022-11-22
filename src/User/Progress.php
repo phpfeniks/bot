@@ -7,6 +7,7 @@ namespace Feniks\Bot\User;
 use Discord\Discord;
 use Discord\Parts\Guild\Guild;
 use Discord\Parts\User\Member;
+use Feniks\Bot\Models\AuditLog;
 
 class Progress
 {
@@ -79,14 +80,14 @@ class Progress
             return;
         }
         if(! $this->canAssignRole($role)) {
-            $this->guild->audit("Unable to add role <@&{$role}> to <@{$this->member->id}>, check permissions", $this->discord);
+            $this->guild->audit("Unable to add role <@&{$role}> to <@{$this->member->id}>, check permissions", $this->discord, AuditLog::ERROR);
         }
         $this->member->addRole($role)
             ->then(function() use($role) {
                 $this->guild->audit("Gave <@&{$role}> to <@{$this->member->id}>", $this->discord);
             },
             function(\Exception $e) use($role) {
-                $this->guild->audit("Error when giving <@&{$role}> to <@{$this->member->id}>: `{$e->getMessage()}`", $this->discord);
+                $this->guild->audit("Error when giving <@&{$role}> to <@{$this->member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
             });
 
     }
