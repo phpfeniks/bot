@@ -2,8 +2,9 @@
 
 namespace Feniks\Bot\Models;
 
+use Discord\Builders\MessageBuilder;
 use Discord\Discord;
-use Discord\Parts\Channel\Message;
+use Discord\Parts\Embed\Embed;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use xqus\ModelSettings\HasSettings;
@@ -19,7 +20,16 @@ class Guild extends Model
         'settings' => 'json',
     ];
 
-    public function audit($message, Discord $discord, $level = 'info')
+    protected $auditColors = [
+        AuditLog::CRITICAL => "#5a0441",
+        AuditLog::ERROR => "#cc3300",
+        AuditLog::WARNING => "#ffcc00",
+        AuditLog::NOTICE => "#e08dff",
+        AuditLog::INFO => "#77b5fe",
+        AuditLog::DEBUG => "#f6f3ee",
+    ];
+
+    public function audit($message, Discord $discord, $level = AuditLog::INFO)
     {
         $auditChannel = $discord->getChannel($this->settings()->get('general.audit-channel', null));
 
@@ -29,7 +39,13 @@ class Guild extends Model
             return false;
         }
 
-        $auditChannel->sendMessage("`{$level}` {$message}")->done();
+        $logMessage = MessageBuilder::new()
+            ->addEmbed(new Embed($discord, [
+                'description' => $message,
+                'color' => $this->auditColors[$level],
+            ]));
+
+        $auditChannel->sendMessage($logMessage)->done();
     }
 
     public function channels()
