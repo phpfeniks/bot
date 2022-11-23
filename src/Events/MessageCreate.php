@@ -252,11 +252,5 @@ class MessageCreate
             $guild->pivot->points = $newScore;
             $guild->pivot->save();
         }
-
-
-        if(rand(0,50) == 19) {
-            $progress->reAssignRoles($newScore);
-        }
     }
-
 }
