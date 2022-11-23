@@ -67,7 +67,7 @@ class Progress
                                     //$this->guild->audit("Just making sure <@{$member->id}> does not have <@&{$ranks[$rankId]['role']}>: `{$e->getMessage()}`", $this->discord);
                                 });
                         }, function (\Exception $e){
-                            $this->guild->audit("Error fetching user data: `{$e->getMessage()}`", $this->discord, 'warning');
+                            $this->guild->audit("Error fetching user data: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
                         });
                 }
             }
@@ -82,14 +82,20 @@ class Progress
         if(! $this->canAssignRole($role)) {
             $this->guild->audit("Unable to add role <@&{$role}> to <@{$this->member->id}>, check permissions", $this->discord, AuditLog::ERROR);
         }
-        $this->member->addRole($role)
-            ->then(function() use($role) {
-                $this->guild->audit("Gave <@&{$role}> to <@{$this->member->id}>", $this->discord);
-            },
-            function(\Exception $e) use($role) {
-                $this->guild->audit("Error when giving <@&{$role}> to <@{$this->member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
+        $this->memberGuild->members->fetch($this->member->id, true)
+            ->then(function (Member $member) use($role)  {
+                $member->removeRole($role)->always(function () use ($role, $member) {
+                    $member->addRole($role)
+                        ->done(function() use($role, $member) {
+                            $this->guild->audit("Gave <@&{$role}> to <@{$member->id}>", $this->discord);
+                        },
+                            function(\Exception $e) use($role, $member) {
+                                $this->guild->audit("Error when giving <@&{$role}> to <@{$member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
+                            });
+                });
+            }, function (\Exception $e) use($role) {
+                $this->guild->audit("Error when giving <@&{$role}> to <@{$this->member->id}>. Error fetching user data: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
             });
-
     }
 
     private function canAssignRole($roleId)
