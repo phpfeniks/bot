@@ -216,14 +216,22 @@ class RunFeniksBot extends Command
 
     private function registerCommands(Discord $discord)
     {
+
         foreach($this->commands as $class) {
             $command = new $class($discord);
-            $SlashCommand = new SlashCommand($discord, [
-                'name' => $command->getName(),
-                'description' => $command->getDescription(),
-                'options' => $command->getOptions(),
-            ]);
-            $discord->application->commands->save($SlashCommand);
+
+            if(Cache::get("command-version-{$command->getName()}", 1) < $command->getSigV()) {
+                $SlashCommand = new SlashCommand($discord, [
+                    'name' => $command->getName(),
+                    'description' => $command->getDescription(),
+                    'options' => $command->getOptions(),
+                ]);
+                $discord->application->commands->save($SlashCommand);
+                $discord->getLogger()->notice('Updating command '.$command->getName());
+                Cache::put("command-version-{$command->getName()}", $command->getSigV());
+            }
+
+
 
             $discord->listenCommand($command->getName(), function (Interaction $interaction) use($command) {
                 $command->handle($interaction);

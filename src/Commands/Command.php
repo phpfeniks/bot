@@ -13,6 +13,7 @@ class Command
     protected $description;
     protected $options;
     protected $discord;
+    protected $sigV = 1;
 
     public function __construct(Discord $discord)
     {
@@ -26,6 +27,15 @@ class Command
     {
         return $this->name;
     }
+
+    /**
+     * @return int
+     */
+    public function getSigV()
+    {
+        return $this->sigV;
+    }
+
 
     /**
      * @return string
