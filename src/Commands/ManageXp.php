@@ -93,9 +93,9 @@ class ManageXp extends Command
                                 ->setContent(":x: I have nothing on that user"), true);
                             return;
                         }
-                        if(! is_numeric($components['points']->value)) {
+                        if(! is_numeric($components['points']->value) || $components['points']->value < 0 || $components['points']->value > 100000) {
                             $interaction->respondWithMessage(MessageBuilder::new()
-                                ->setContent(":x: Not a number.."), true);
+                                ->setContent(":x: Not a number between 0 and 100 000"), true);
                             return;
                         }
                         $userGuild->pivot->points = $userGuild->pivot->points - $components['points']->value;
@@ -165,9 +165,9 @@ class ManageXp extends Command
                                 ->setContent(":x: I have nothing on that user"), true);
                             return;
                         }
-                        if(! is_numeric($components['points']->value)) {
+                        if(! is_numeric($components['points']->value) || $components['points']->value < 0 || $components['points']->value > 100000) {
                             $interaction->respondWithMessage(MessageBuilder::new()
-                                ->setContent(":x: Not a number.."), true);
+                                ->setContent(":x: Not a number between 0 and 100 000"), true);
                             return;
                         }
                         $userGuild->pivot->points = $userGuild->pivot->points + $components['points']->value;
