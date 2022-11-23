@@ -223,6 +223,7 @@ class MessageCreate
                     ];
                     $embed = new Embed($discord, $embed);
                     $reply = MessageBuilder::new()
+                        ->setContent("<@{$user->discord_id}>")
                         ->addEmbed($embed);
 
                     if ($channel->getBotPermissions()->view_channel && $channel->getBotPermissions()->send_messages && $channel->getBotPermissions()->embed_links) {
