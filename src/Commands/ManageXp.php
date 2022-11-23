@@ -13,6 +13,7 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Command\Option;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
+use Feniks\Bot\Models\AuditLog;
 use Feniks\Bot\Models\Guild as GuildModel;
 use Feniks\Bot\Models\User;
 use Feniks\Bot\User\Progress;
@@ -60,7 +61,14 @@ class ManageXp extends Command
 
         $user = User::where('discord_id', $interaction->data->options['user']->value)->first();
         if(! $user) {
-            $interaction->respondWithMessage(MessageBuilder::new()->setContent(':x: User has no data recorded.'), true);
+            $user = User::updateOrCreate([
+                'discord_id' => $interaction->data->options['user']->value,
+            ], [
+                'name' => '',
+                'avatar' => '',
+            ]);
+            $guild->users()->syncWithoutDetaching([$user->id => []]);
+            $guild->audit("User <@{$interaction->data->options['user']->value}> manually created with command.", $this->discord, AuditLog::INFO);
         }
 
 
