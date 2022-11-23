@@ -22,7 +22,8 @@ use function Symfony\Component\String\lower;
 class ManageXp extends Command
 {
     protected $name = 'xpmanager';
-    protected $description = 'pong';
+    protected $description = 'Manage XP for any given user';
+    protected $sigV = 2;
     protected $options = [
         [
             'name' => 'user',
