@@ -182,9 +182,6 @@ class MessageCreate
                 }
             }
 
-
-            //dump([$newRank, $currentRank]);
-
             if($newRank !== null && $newRank !== $currentRank) {
                 if (isset($ranks[$newRank + 1])) {
                     $nextRank = $newRank + 1;
