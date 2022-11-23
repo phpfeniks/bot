@@ -12,8 +12,8 @@ class Ping extends Command
 {
 
     protected $name = 'ping';
-
-    protected $description = 'pong';
+    protected $description = 'Show system status';
+    protected $sigV = 2;
 
     public function handle(Interaction $interaction)
     {
