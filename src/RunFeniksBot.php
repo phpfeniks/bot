@@ -82,7 +82,7 @@ class RunFeniksBot extends Command
         ]);
 
         $discord->on(Event::GUILD_CREATE, function (Guild $guild, Discord $discord) {
-            $discord->getLogger()->info('Joined guild:'. $guild['name']);
+            $discord->getLogger()->debug('Joined guild:'. $guild['name']);
             $guilds = new Guilds();
             $guildId = $guilds->sync($guild);
 
