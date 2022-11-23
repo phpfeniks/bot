@@ -84,15 +84,15 @@ class Progress
         }
         $this->memberGuild->members->fetch($this->member->id, true)
             ->then(function (Member $member) use($role)  {
-                $member->removeRole($role)->always(function () use ($role, $member) {
-                    $member->addRole($role)
-                        ->done(function() use($role, $member) {
+                $member->addRole($role)
+                    ->done(
+                        function() use($role, $member) {
                             $this->guild->audit("Gave <@&{$role}> to <@{$member->id}>", $this->discord);
                         },
-                            function(\Exception $e) use($role, $member) {
-                                $this->guild->audit("Error when giving <@&{$role}> to <@{$member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
-                            });
-                });
+                        function(\Exception $e) use($role, $member) {
+                            $this->guild->audit("Error when giving <@&{$role}> to <@{$member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
+                        }
+                    );
             }, function (\Exception $e) use($role) {
                 $this->guild->audit("Error when giving <@&{$role}> to <@{$this->member->id}>. Error fetching user data: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
             });
