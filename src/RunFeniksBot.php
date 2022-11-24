@@ -103,7 +103,7 @@ class RunFeniksBot extends Command
             $discord->updatePresence($activity);
 
             $discord->getLoop()->addPeriodicTimer(3600, function($timer) use($discord) {
-                $discord->getLogger()->info('Hourly tick');
+                $discord->getLogger()->debug('Hourly tick');
 
                 $announcer = new Announcer($discord);
                 $announcer->starting();
@@ -112,7 +112,7 @@ class RunFeniksBot extends Command
             $discord->getLoop()->addPeriodicTimer(7200, function($timer) use($discord) {
                 $discord->getLogger()->info('Updating active guilds');
                 foreach($discord->guilds as $guild) {
-                    $discord->getLogger()->info('Active in guild: '.$guild->id);
+                    $discord->getLogger()->debug('Active in guild: '.$guild->id);
                     $update = GuildModel::where('discord_id', $guild->id)->first();
                     $update->active_at = now('UTC');
                     $update->save();
