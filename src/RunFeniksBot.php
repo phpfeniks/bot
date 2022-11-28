@@ -190,6 +190,10 @@ class RunFeniksBot extends Command
             });*/
 
             $discord->on(Event::MESSAGE_UPDATE, function (Message $message, Discord $discord, ?Message $oldMessage) {
+                if($message->author->bot) {
+                    return;
+                }
+
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
                 if(! $guild) {
                     return;
@@ -198,6 +202,10 @@ class RunFeniksBot extends Command
             });
 
             $discord->on(Event::MESSAGE_DELETE, function (object $message, Discord $discord) {
+                if($message->author->bot) {
+                    return true;
+                }
+
                 $guild = \Feniks\Bot\Models\Guild::where('discord_id', $message->guild_id)->first();
 
                 if(! $guild) {
