@@ -9,7 +9,7 @@ trait Ranks
 {
     public function level($points)
     {
-        $currentRank = 0;
+        $currentRank = -1;
         foreach($this->ranks() as $rankId => $rank) {
             if($points >= (int) $rank['requirement']) {
                 $currentRank = $rankId;
