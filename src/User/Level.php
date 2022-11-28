@@ -6,6 +6,7 @@ namespace Feniks\Bot\User;
 
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
+use Discord\Helpers\Collection;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\Member;
@@ -27,7 +28,8 @@ class Level
         $this->guild =  GuildModel::where('discord_id', $interaction->guild_id)->first();
 
         $this->user = User::where('discord_id', $interaction->user->id)->first();
-        if(isset($interaction->data->options) && $interaction->data->options['user'] !== null) {
+
+        if(($interaction->data->options instanceof Collection)  && $interaction->data->options['user']->value != null) {
             $this->user = User::where('discord_id', $interaction->data->options['user']->value)->first();
         }
 
