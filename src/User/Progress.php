@@ -183,7 +183,7 @@ class Progress
                         ->then(function (Member $member) use($ranks, $rankId)  {
                             $member->removeRole((int) $ranks[$rankId]['role'])
                                 ->then(function() use($ranks, $rankId, $member) {
-                                    $this->guild->audit("Making sure <@&{$ranks[$rankId]['role']}> is removed from <@{$member->id}>.", $this->discord);
+                                    //$this->guild->audit("Making sure <@&{$ranks[$rankId]['role']}> is removed from <@{$member->id}>.", $this->discord);
                                 }, function (\Exception $e) use($ranks, $rankId, $member) {
                                     //$this->guild->audit("Just making sure <@{$member->id}> does not have <@&{$ranks[$rankId]['role']}>: `{$e->getMessage()}`", $this->discord);
                                 });
@@ -211,7 +211,7 @@ class Progress
                             $this->guild->audit("Gave <@&{$role}> to <@{$member->id}>", $this->discord);
                         },
                         function(\Exception $e) use($role, $member) {
-                            $this->guild->audit("Error when giving <@&{$role}> to <@{$member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
+                            //$this->guild->audit("Error when giving <@&{$role}> to <@{$member->id}>: `{$e->getMessage()}`", $this->discord, AuditLog::WARNING);
                         }
                     );
             }, function (\Exception $e) use($role) {
