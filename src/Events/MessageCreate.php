@@ -120,12 +120,11 @@ class MessageCreate
 
         // Add length bonus
         $lenBonusReq = $guild->settings()->get('points.lengthMultiplier.words', null);
-        $logBonuses = [];
+
 
         if($lenBonusReq) {
             $bonus = ($points/100)*$guild->settings()->get('points.lengthMultiplier.bonus', 0);
             $lenBonus = ($bonus*floor($words/$lenBonusReq));
-            $logBonuses['lenBonus'] = $lenBonus;
             $points = $points + $lenBonus;
         }
 
@@ -137,7 +136,6 @@ class MessageCreate
                 continue;
             }
             $flatBonus = $bonus['bonus'];
-            $logBonuses['flatBonus'] = $flatBonus;
         }
         $points = $points + $flatBonus;
 
