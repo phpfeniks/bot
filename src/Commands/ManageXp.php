@@ -98,10 +98,9 @@ class ManageXp extends Command
                                 ->setContent(":x: Not a number between 0 and 100 000"), true);
                             return;
                         }
-                        $userGuild->pivot->points = $userGuild->pivot->points - $components['points']->value;
-                        $userGuild->pivot->save();
 
                         $progress = new Progress($this->discord, $interaction->guild, $member);
+                        $progress->levelUp($userGuild, $user, -$components['points']->value);
                         $progress->reAssignRoles($userGuild->pivot->points);
 
                         $guild->audit("<@{$interaction->member->id}> removed `{$components['points']->value} XP` from <@{$member->id}>.", $this->discord);
@@ -134,10 +133,9 @@ class ManageXp extends Command
                                 ->setContent(":x: Please type `confirm`."), true);
                             return;
                         }
-                        $userGuild->pivot->points = $userGuild->pivot->points = 0;
-                        $userGuild->pivot->save();
 
                         $progress = new Progress($this->discord, $interaction->guild, $member);
+                        $progress->levelUp($userGuild, $user, null);
                         $progress->reAssignRoles($userGuild->pivot->points);
 
                         $guild->audit("<@{$interaction->member->id}> removed `ALL XP` from <@{$member->id}>.", $this->discord);
@@ -170,11 +168,9 @@ class ManageXp extends Command
                                 ->setContent(":x: Not a number between 0 and 100 000"), true);
                             return;
                         }
-                        $userGuild->pivot->points = $userGuild->pivot->points + $components['points']->value;
-                        $userGuild->pivot->save();
 
                         $progress = new Progress($this->discord, $interaction->guild, $member);
-                        $progress->reAssignRoles($userGuild->pivot->points);
+                        $progress->levelUp($userGuild, $user, $components['points']->value);
 
                         $guild->audit("<@{$interaction->member->id}> added `{$components['points']->value} XP` to <@{$member->id}>.", $this->discord);
 
