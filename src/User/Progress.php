@@ -134,7 +134,6 @@ class Progress
 
     public function reAssignRoles($points)
     {
-        dump($points);
         $this->removeOldRoles($points);
         $this->addRoles($points);
     }

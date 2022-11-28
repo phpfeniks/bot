@@ -75,7 +75,7 @@ class RunFeniksBot extends Command
         $logger = Log::channel('discord')->getLogger();
         $discord = new Discord([
             'token' => config('services.discord.bot_token'),
-            'intents' => Intents::getDefaultIntents() | Intents::GUILDS,
+            'intents' => Intents::getDefaultIntents() | Intents::GUILDS | Intents::MESSAGE_CONTENT,
             'logger' => $logger,
             'loop' => $loop,
             'cacheInterface' => $cache,
