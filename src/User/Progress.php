@@ -179,9 +179,9 @@ class Progress
             }
             if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0 && $ranks[$rankId]['role'] != $ignoreRole) {
                 if($this->canAssignRole((int) $ranks[$rankId]['role'])) {
-                    $this->memberGuild->members->fetch($this->member->id)
-                        ->then(function (Member $member) use($ranks, $rankId)  {
-                            $member->removeRole((int) $ranks[$rankId]['role'])
+                    $this->memberGuild->members->fetch($this->member->id, true)
+                        ->then(function (Member $member) use($ranks, $rankId, $ignoreRole, $points)  {
+                            $member->removeRole((int) $ranks[$rankId]['role'], "User should only have role {$ignoreRole} with {$points} XP.")
                                 ->then(function() use($ranks, $rankId, $member) {
                                     //$this->guild->audit("Making sure <@&{$ranks[$rankId]['role']}> is removed from <@{$member->id}>.", $this->discord);
                                 }, function (\Exception $e) use($ranks, $rankId, $member) {
