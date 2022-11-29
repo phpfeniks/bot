@@ -122,7 +122,7 @@ class Progress
 
             }
 
-            if ($channel->getBotPermissions()->manage_roles === true || $channel->getBotPermissions()->administrator) {
+            if ($channel === null || $channel->getBotPermissions()->manage_roles === true || $channel->getBotPermissions()->administrator) {
                 $this->reAssignRoles($newScore);
             } else {
                 $guild->audit('Bot is missing permissions to manage roles.', $this->discord, 'warning');
