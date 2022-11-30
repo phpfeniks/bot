@@ -175,12 +175,16 @@ class Progress
 
         foreach ($ranks as $rankId => $rank) {
             if($this->guild->settings()->get('points.stack-roles', false) && $ranks[$rankId]['requirement'] < $points) {
+                $this->discord->getLogger()->debug("Removing roles for {$this->member->id}: Skipping {$ranks[$rankId]['role']}");
                 continue;
             }
             if (isset($ranks[$rankId]['role']) && $ranks[$rankId]['role'] != 0 && $ranks[$rankId]['role'] != $ignoreRole) {
+                $this->discord->getLogger()->debug("Removing roles for {$this->member->id}: Investigating {$ranks[$rankId]['role']}");
                 if($this->canAssignRole((int) $ranks[$rankId]['role'])) {
+                    $this->discord->getLogger()->debug("Removing roles for {$this->member->id}: Has permission to {$ranks[$rankId]['role']}");
                     $this->memberGuild->members->fetch($this->member->id, true)
                         ->then(function (Member $member) use($ranks, $rankId, $ignoreRole, $points)  {
+                            $this->discord->getLogger()->debug("Removing roles for {$this->member->id}: Removing {$ranks[$rankId]['role']}");
                             $member->removeRole((int) $ranks[$rankId]['role'], "User should not have role with {$points} XP.")
                                 ->then(function() use($ranks, $rankId, $member) {
                                     //$this->guild->audit("Making sure <@&{$ranks[$rankId]['role']}> is removed from <@{$member->id}>.", $this->discord);

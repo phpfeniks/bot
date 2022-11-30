@@ -52,8 +52,7 @@ class Balance extends Command
             ->description(":robot: This may take a while. Please be patient.");
         $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($this->discord, $embed->toArray())), true);
         foreach($guild->users()->get() as $user) {
-            dump($user->discord_id);
-            $interaction->guild->members->fetch($user->discord_id)
+            $interaction->guild->members->fetch($user->discord_id, true)
                 ->then(function (Member $member) use($interaction, $guild, $user) {
                     $progress = new Progress($this->discord, $interaction->guild, $member);
                     $progress->reAssignRoles($user->pivot->points);
